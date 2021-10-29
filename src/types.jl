@@ -15,6 +15,20 @@
 #' We make the primitive type a subtype of Number to make it easier for insertion on
 #' Vectors (e.g. if `u` is a vector of State, we can do `u .= SUSCEPTIBLE`).
 
+"""
+    primitive type State <: Number 8 end
+
+`State` is a primitive subtype of `Number` with 8 bits, representing the different
+states, or stages, of a disease, for a given individual. The following states are
+defined as (global) constants:
+* SUSCEPTIBLE = State(0)
+* EXPOSED = State(1)
+* INFECTED = State(2)
+* ASYMPTOMATIC = State(3)
+* RECOVERED = State(4)
+* QUARENTINED = State(5)
+* DECEASED = State(6)
+"""
 primitive type State <: Number 8 end
 
 State(x::Int) = reinterpret(State, Int8(x))
