@@ -49,11 +49,6 @@ for (i, n) in enumerate(statelist)
     @eval const $n = State($i - 1)
 end
 
-Base.show(io::IO, x::State) =
-    x in eval.(statelist) ?
-        print(io, string(statelist[Int(x) + 1])) :
-        print(io, "Undefined state $x")
-
 function Base.show(io::IO, x::State)
     if x in eval.(statelist)
         if get(io, :compact, true)
