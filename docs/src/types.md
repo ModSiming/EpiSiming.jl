@@ -1,3 +1,7 @@
+```@meta
+CurrentModule = EpiSiming
+```
+
 # Types
 
 ## Types for the stages of the epidemics
