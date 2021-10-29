@@ -1,4 +1,4 @@
-push!(LOAD_PATH,"../src/")
+push!(LOAD_PATH,Base.current_project(@__DIR__))
 
 using Documenter
 using EpiSiming

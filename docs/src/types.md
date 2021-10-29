@@ -13,5 +13,5 @@ We could also use straight `Int8` to represent the states, but the nice thing ab
 We make the primitive type a subtype of Number to make it easier for insertion on Vectors (e.g. if `u` is a vector of State, we can do `u .= SUSCEPTIBLE`).
 
 ```@docs
-EpiSiming.State
+State
 ```
