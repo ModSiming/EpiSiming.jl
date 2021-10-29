@@ -1,4 +1,6 @@
 #+ echo = false
+# Weave it to markdown, for showing on github and in Documenter with
+# `weave("random_scenario.jl", fig_path = "random_scenario_img", doctype = "github")`
 # Weave it to html with 
 # `using Weave`
 # `cd("examples")`
