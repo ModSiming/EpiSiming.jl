@@ -7,7 +7,7 @@ makedocs(
     sitename = "EpiSiming.jl",
     pages = [
         "Home" => "index.md",
-        "Types" => "types.md",
+        "Structures" => "structures.md",
         "Evolution" => "evolution.md",
         "Examples" => "examples.md",
         "API" => "api.md"

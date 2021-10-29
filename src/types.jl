@@ -84,6 +84,20 @@ const state_colors = Dict(
 #'
 #' ### Population
 
+"""
+    struct Population{T, S} <: AbstractVector{Tuple{T, S}}
+
+Population structure with the following fields:
+* state::Vector{S}
+* event_history::Vector{T}
+* residence::Vector{Int}
+* position::Vector{Tuple{Float64, Float64}}
+* age::Vector{Int8}
+* susceptibility::Vector{Float64}
+* infectivity::Vector{Float64}
+* clusters::Vector{Dict{Symbol, Int}}
+* networks::Vector{Dict{Symbol, Int}}
+"""
 struct Population{T, S} <: AbstractVector{Tuple{T, S}}
     state::Vector{S}
     event_history::Vector{T}
@@ -134,6 +148,16 @@ end
 
 #' We parametrize it with types `T` and `S`, but with `Int` and `Float64` in mind.
 #'
+
+"""
+    Residences{T, S} <: AbstractVector{Tuple{T, S}}
+
+Residences structure with the following fields:
+* block::Vector{T}
+* position::Vector{Tuple{S, S}}
+* num_residents::Vector{T}
+* residents::Vector{Vector{T}}
+"""
 struct Residences{T, S} <: AbstractVector{Tuple{T, S}}
     block::Vector{T}
     position::Vector{Tuple{S, S}}
@@ -163,6 +187,15 @@ end
 
 #' ### Clusters
 
+"""
+    struct Clusters
+
+Clusters structure with the following fields:
+* id::Symbol
+* name::String
+* contact_rate::Float64
+* clusters::Vector{Vector{Int}}
+"""
 struct Clusters
     id::Symbol
     name::String
@@ -172,8 +205,33 @@ end
 
 #' ### networks
 
+"""
+struct Networks
+
+Structure for the set of networks
+"""
+struct Networks
+end
 #' ### Scenario
 
+"""
+Structure for the Scenario, with the following fields:
+
+* name::String
+* info::String
+* num_population::Int
+* population::Population
+* residences::Residences
+* res_size_distribution::StatsBase.Weights{Float64, Float64, Vector{Float64}}
+* pop_pyramid::StatsBase.Weights{Float64, Float64, Vector{Float64}}
+* Γ_susceptibility::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
+* Γ_infectivity::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
+* contact_rate::NamedTuple{(:residences, :general), Tuple{Float64, Float64}}
+* recovery_rate::NamedTuple{
+      (:exposed, :infected, :asymptomatic),
+      Tuple{Float64, Float64, Float64}
+  }
+"""
 struct Scenario
     name::String
     info::String
@@ -182,7 +240,7 @@ struct Scenario
     residences::Residences
     res_size_distribution::StatsBase.Weights{Float64, Float64, Vector{Float64}}
     pop_pyramid::StatsBase.Weights{Float64, Float64, Vector{Float64}}
-    Γ_suscepibility::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
+    Γ_susceptibility::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
     Γ_infectivity::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
     contact_rate::NamedTuple{(:residences, :general), Tuple{Float64, Float64}}
     recovery_rate::NamedTuple{

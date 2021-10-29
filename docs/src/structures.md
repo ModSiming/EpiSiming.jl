@@ -2,9 +2,9 @@
 CurrentModule = EpiSiming
 ```
 
-# Types
+# Structures
 
-## Types for the stages of the epidemics
+## Epidemic stages
 
 We define a primitive type which uses a single byte (8 bits) to reduce the memory usage. That is the smallest possible size for a primitive type. Even Bools are 8 bits. The only thing that uses less memory is BitVector, but that is a ... Vector, not a singleton.
 
@@ -14,4 +14,33 @@ We make the primitive type a subtype of Number to make it easier for insertion o
 
 ```@docs
 State
+```
+
+## Residences
+
+```@docs
+Residences
+```
+
+## Population
+
+```@docs
+Population
+```
+## Clusters
+
+```@docs
+Clusters
+```
+
+## Networks
+
+```@docs
+Networks
+```
+
+## Scenario
+
+```@docs
+Scenario
 ```
