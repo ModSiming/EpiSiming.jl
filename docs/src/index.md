@@ -6,6 +6,6 @@ This adaptation to the [Julia language](https://julialang.org) is still a work i
 
 ## Index
 
-```@Index
+```@index
 ```
 
