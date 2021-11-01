@@ -69,7 +69,7 @@
 
     exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
 
-    population.state[exposed_at_time_0] .= EXPOSED
+    population.phase[exposed_at_time_0] .= EXPOSED
 
     max_size = 100
     α = 1.8

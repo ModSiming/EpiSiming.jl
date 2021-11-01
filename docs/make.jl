@@ -1,3 +1,8 @@
+# `]activate .``
+# `using Revise, Documenter`
+# `;cd docs`
+# `include("make.jl")`
+#
 push!(LOAD_PATH,Base.current_project(@__DIR__))
 
 using Documenter

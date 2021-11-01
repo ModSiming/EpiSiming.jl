@@ -178,7 +178,7 @@ function gen_population(
     ages = Int8.(sample(rng, 0 : length(pop_pyramid) - 1, pop_pyramid, num_population))
 
     population = Population(
-        fill(SUSCEPTIBLE, num_population), # state
+        fill(SUSCEPTIBLE, num_population), # phase
         fill(1, num_population), # event_history
         Vector{Int}(undef, num_population), # residences
         Vector{Tuple{Float64, Float64}}(undef, num_population), # positions

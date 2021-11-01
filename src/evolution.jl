@@ -11,14 +11,14 @@ we don't care to filter by susceptible, just leaving it zero for non-susceptible
 """
 function force_of_infection!(λ, population, residences, clusters, τ)
     for n in eachindex(population)
-        if population.state[n] == SUSCEPTIBLE
+        if population.phase[n] == SUSCEPTIBLE
             res = population.residence[n]
             number_of_coresidents = residences.num_residents[res] - 1
             λ[n] = 0.0
             if number_of_coresidents > 0
                 for k in residences.residents[res]
-                    if population.state[k] == INFECTED || 
-                        population.state[k] == ASYMPTOMATIC
+                    if population.phase[k] == INFECTED || 
+                        population.phase[k] == ASYMPTOMATIC
                         λ[n] += population.infectivity[k]
                     end
                 end
@@ -30,8 +30,8 @@ function force_of_infection!(λ, population, residences, clusters, τ)
                 if num_of_cluster_members > 1 # should not even include clusters with a single member
                     cocluster_infectivity = 0.0
                     for k in cluster_members
-                        if population.state[k] == INFECTED || 
-                            population.state[k] == ASYMPTOMATIC
+                        if population.phase[k] == INFECTED || 
+                            population.phase[k] == ASYMPTOMATIC
                             cocluster_infectivity += population.infectivity[k]
                         end
                     end
@@ -49,26 +49,26 @@ end
 function step_foward!(rng, population, chances, λ, γ, prob, k)
     rand!(rng, chances)
     for n in eachindex(population)
-        state = population.state[n]
-        if state == SUSCEPTIBLE && chances[n] ≤ 1 - exp(-λ[n])
+        phase = population.phase[n]
+        if phase == SUSCEPTIBLE && chances[n] ≤ 1 - exp(-λ[n])
             population.event_history[n] = k
-            population.state[n] = EXPOSED
-        elseif state == EXPOSED && chances[n] ≤ γ.rate_expos
+            population.phase[n] = EXPOSED
+        elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
             population.event_history[n] = k
             if rand(rng) ≤ prob.asymp
-                population.state[n] = ASYMPTOMATIC
+                population.phase[n] = ASYMPTOMATIC
             else
-                population.state[n] = INFECTED
+                population.phase[n] = INFECTED
             end
-        elseif state == ASYMPTOMATIC && chances[n] ≤ γ.rate_asymp
+        elseif phase == ASYMPTOMATIC && chances[n] ≤ γ.rate_asymp
             population.event_history[n] = k
-            population.state[n] = RECOVERED
-        elseif state == INFECTED && chances[n] ≤ γ.rate_infec
+            population.phase[n] = RECOVERED
+        elseif phase == INFECTED && chances[n] ≤ γ.rate_infec
             population.event_history[n] = k
             if rand(rng) ≤ prob.decease
-                population.state[n] = DECEASED
+                population.phase[n] = DECEASED
             else
-                population.state[n] = RECOVERED
+                population.phase[n] = RECOVERED
             end
         end
     end
@@ -83,17 +83,17 @@ function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps,
     verbose::Integer = false
 )
     num_population = length(population)
-    evolution = spzeros(State, num_population, num_steps)
-    evolution[:, 1]  .= population.state # getfield(population, :state)
+    evolution = spzeros(Phase, num_population, num_steps)
+    evolution[:, 1]  .= population.phase # getfield(population, :phase)
     λ = Vector{Float64}(undef, num_population)
     chances = Vector{Float64}(undef, num_population)
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
         step_foward!(rng, population, chances, λ, γ, prob, k)
         for n in 1:num_population
-            state = population.state[n]
-            if state != SUSCEPTIBLE 
-                evolution[n, k]  = state
+            phase = population.phase[n]
+            if phase != SUSCEPTIBLE 
+                evolution[n, k]  = phase
             end
         end
         if verbose != false && mod(k, verbose) == 0

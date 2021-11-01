@@ -1,82 +1,64 @@
-#' # Types for Episiming.jl
-
-#' ## Defining the individual epidemics state constants
-#'
-#' We define a primitive type which uses a single byte (8 bits) to reduce the memory usage.
-#' That is the smallest possible size for a primitive type. Even Bools are 8 bits.
-#' The only thing that uses less memory is BitVector, but that is a ... Vector, not a 
-#' singleton.
-#'
-#' We could also use straight `Int8` to represent the states, but the nice thing about
-#' defining a new type is that we can define how it is displayed. So, the SUSCEPTIBLE state
-#' can be displayed as "SUSCEPTIBLE" or "S", instead of say "0". Imagine figuring out
-#' whether "5" is RECOVERED, QUARENTINED or DECEASED.
-#'
-#' We make the primitive type a subtype of Number to make it easier for insertion on
-#' Vectors (e.g. if `u` is a vector of State, we can do `u .= SUSCEPTIBLE`).
+# Types for Episiming.jl
 
 """
-    primitive type State <: Number 8 end
+    primitive type Phase <: Number 8 end
 
-`State` is a primitive subtype of `Number` with 8 bits, representing the different
-states, or stages, of a disease, for a given individual. The following states are
+`Phase` is a primitive subtype of `Number` with 8 bits, representing the different
+phases, or stages, of a disease, for a given individual. The following phases are
 defined as (global) constants:
-* SUSCEPTIBLE = State(0)
-* EXPOSED = State(1)
-* INFECTED = State(2)
-* ASYMPTOMATIC = State(3)
-* RECOVERED = State(4)
-* QUARENTINED = State(5)
-* DECEASED = State(6)
+* SUSCEPTIBLE = Phase(0)
+* EXPOSED = Phase(1)
+* INFECTED = Phase(2)
+* ASYMPTOMATIC = Phase(3)
+* RECOVERED = Phase(4)
+* DECEASED = Phase(5)
 """
-primitive type State <: Number 8 end
+primitive type Phase <: Number 8 end
 
-State(x::Int) = reinterpret(State, Int8(x))
-Base.Int8(x::State) = reinterpret(Int8, x)
-Base.Int(x::State) = convert(Int, Int8(x))
+Phase(x::Int) = reinterpret(Phase, Int8(x))
+Base.Int8(x::Phase) = reinterpret(Int8, x)
+Base.Int(x::Phase) = convert(Int, Int8(x))
 
-statelist = (
+phaselist = (
     :SUSCEPTIBLE,
     :EXPOSED,
     :INFECTED,
     :ASYMPTOMATIC,
     :RECOVERED,
-    :QUARENTINED,
     :DECEASED
 )
 
-for (i, n) in enumerate(statelist)
-    @eval const $n = State($i - 1)
+for (i, n) in enumerate(phaselist)
+    @eval const $n = Phase($i - 1)
 end
 
-function Base.show(io::IO, x::State)
-    if x in eval.(statelist)
+function Base.show(io::IO, x::Phase)
+    if x in eval.(phaselist)
         if get(io, :compact, true)
-            print(io, first(string(statelist[Int(x) + 1])))
+            print(io, first(string(phaselist[Int(x) + 1])))
         else
-            print(io, string(statelist[Int(x) + 1]))
+            print(io, string(phaselist[Int(x) + 1]))
         end
     else
-        print(io, "Undefined state $x")
+        print(io, "Undefined phase $x")
     end
 end
 
-Base.show(io::IO, ::MIME"text/plain", x::State) =
-    x in eval.(statelist) ?
-        print(io, "Epidemic state:\n   ", x) :
-        print(io, "Undefined state $x")
+Base.show(io::IO, ::MIME"text/plain", x::Phase) =
+    x in eval.(phaselist) ?
+        print(io, "Epidemic phase:\n   ", x) :
+        print(io, "Undefined phase $x")
 
 
 
- #' Some colors for displaying the epidemics state of the population
+ #' Some colors for displaying the epidemics phase of the population
 
-const state_colors = Dict(
+const phase_colors = Dict(
     SUSCEPTIBLE => :lightgray,
     EXPOSED => :orange,
     INFECTED => :red,
     ASYMPTOMATIC => :violet,
     RECOVERED => :blue,
-    QUARENTINED => :yellow,
     DECEASED => :black
 )
 
@@ -88,7 +70,7 @@ const state_colors = Dict(
     struct Population{T, S} <: AbstractVector{Tuple{T, S}}
 
 Population structure with the following fields:
-* state::Vector{S}
+* phase::Vector{S}
 * event_history::Vector{T}
 * residence::Vector{Int}
 * position::Vector{Tuple{Float64, Float64}}
@@ -99,7 +81,7 @@ Population structure with the following fields:
 * networks::Vector{Dict{Symbol, Int}}
 """
 struct Population{T, S} <: AbstractVector{Tuple{T, S}}
-    state::Vector{S}
+    phase::Vector{S}
     event_history::Vector{T}
     residence::Vector{Int}
     position::Vector{Tuple{Float64, Float64}}
@@ -110,9 +92,9 @@ struct Population{T, S} <: AbstractVector{Tuple{T, S}}
     networks::Vector{Dict{Symbol, Int}}
 end
 
-Base.size(population::Population) = size(population.state)
+Base.size(population::Population) = size(population.phase)
 Base.getindex(population::Population, n::Int) = (
-    population.state[n],
+    population.phase[n],
     population.event_history[n],
     population.residence[n],
     population.position[n],
@@ -132,7 +114,7 @@ function Base.setindex!(
     },
     n::Int
 ) where {T, S}
-    population.state[n] = v[1]
+    population.phase[n] = v[1]
     population.event_history[n] = v[2]
     population.residence[n] = v[3]
     population.position[n] = v[4]

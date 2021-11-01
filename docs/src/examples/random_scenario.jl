@@ -1,6 +1,10 @@
 #+ echo = false
-# Weave it to markdown, for showing on github and in Documenter with
+#
+# Weave it to markdown, for showing on github and in Documenter, with
+# `using Weave`
+# `cd("examples")`
 # `weave("random_scenario.jl", fig_path = "random_scenario_img", doctype = "github")`
+#
 # Weave it to html with 
 # `using Weave`
 # `cd("examples")`
@@ -302,7 +306,7 @@ display(plt)
 display(
     scatter(
         population.position,
-        c = map(s -> EpiSiming.state_colors[s], population.state),
+        c = map(s -> EpiSiming.phase_colors[s], population.phase),
         markersize = 1,
         markerstrokecolor = :auto,
         label = false,
@@ -317,7 +321,7 @@ display(
     scatter(
         filter(p -> (3.0 < first(p) < 4.0) & (1.0 < last(p) < 2.0), population.position),
         c = map(
-            n -> EpiSiming.state_colors[population.state[n]],
+            n -> EpiSiming.phase_colors[population.phase[n]],
             filter(
                 n -> (3.0 < first(population.position[n]) < 4.0) &
                     (1.0 < last(population.position[n]) < 2.0),
@@ -338,7 +342,7 @@ display(
     scatter(
         filter(p -> (3.2 < first(p) < 3.8) & (1.2 < last(p) < 1.8), population.position),
         c = map(
-            n -> EpiSiming.state_colors[population.state[n]],
+            n -> EpiSiming.phase_colors[population.phase[n]],
             filter(
                 n -> (3.2 < first(population.position[n]) < 3.8) &
                     (1.2 < last(population.position[n]) < 1.8),
@@ -431,7 +435,7 @@ num_exposed_at_time_0 = div(num_population, 500) # (= 0.2%) 20
 
 exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
 
-population.state[exposed_at_time_0] .= EXPOSED
+population.phase[exposed_at_time_0] .= EXPOSED
 
 #' ### Evolution parameters
 
@@ -460,7 +464,7 @@ time_step = 1
 display(
     plot(
         summary[:, 2:end],
-        labels = string.(reduce(hcat, EpiSiming.statelist[2:end])),
+        labels = string.(reduce(hcat, EpiSiming.phaselist[2:end])),
         legend = :left,
         xlabel = "day",
         ylabel = "cases",
@@ -471,8 +475,8 @@ display(
 
 display(
     plot(
-        summary[:, [2, 3, 4, 7]],
-        labels = string.(reduce(hcat, EpiSiming.statelist[[2, 3, 4, 7]])),
+        summary[:, [2, 3, 4, 6]],
+        labels = string.(reduce(hcat, EpiSiming.phaselist[[2, 3, 4, 6]])),
         legend = :right,
         xlabel = "day",
         ylabel = "cases",
