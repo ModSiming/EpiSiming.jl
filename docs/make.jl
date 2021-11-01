@@ -22,3 +22,7 @@ makedocs(
     format = Documenter.HTML(prettyurls = false),
     modules = [EpiSiming]
 )
+
+deploydocs(
+    repo = "github.com/ModSiming/EpiSiming.jl.git",
+)
