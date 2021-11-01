@@ -8,7 +8,7 @@ This is the Julia version of [ModSiming/EpiSiming]().
 
 The core engine is implemented, but so far we have only build one scenario, which is a random scenario on a rectangular area. A scenario for the city of Rio de Janeiro has been implemented in the python version of the project and will soon be adapted to julia and included here.
 
-For the random scenario, check the page [Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario](docs/src/examples/random_scenario.md).
+For the random scenario, have a look [Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario](docs/src/examples/random_scenario.md).
 
 ## License
 
