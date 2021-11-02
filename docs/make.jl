@@ -26,6 +26,5 @@ makedocs(
 deploydocs(
     repo = "github.com/ModSiming/EpiSiming.jl.git",
     devbranch = "main",
-    push_preview = true,
     forcepush = true,
 )
