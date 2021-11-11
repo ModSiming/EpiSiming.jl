@@ -13,10 +13,13 @@ defined as (global) constants:
 * RECOVERED = Phase(4)
 * DECEASED = Phase(5)
 """
-primitive type Phase <: Number 8 end
+primitive type Phase 8 end
 
 Phase(x::Int) = reinterpret(Phase, UInt8(x))
 Base.Int(x::Phase) = convert(Int, reinterpret(UInt8, x)) # needed for Base.show(io::IO, x::Phase)
+Base.Broadcast.broadcastable(x::Phase) = Ref(x)
+Base.zero(::Phase) = Phase(0)
+Base.zero(::Type{Phase}) = Phase(0)
 
 phaselist = (
     :SUSCEPTIBLE,
