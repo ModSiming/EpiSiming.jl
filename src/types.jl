@@ -15,9 +15,8 @@ defined as (global) constants:
 """
 primitive type Phase <: Number 8 end
 
-Phase(x::Int) = reinterpret(Phase, Int8(x))
-Base.Int8(x::Phase) = reinterpret(Int8, x)
-Base.Int(x::Phase) = convert(Int, Int8(x))
+Phase(x::Int) = reinterpret(Phase, UInt8(x))
+Base.Int(x::Phase) = convert(Int, reinterpret(UInt8, x)) # needed for Base.show(io::IO, x::Phase)
 
 phaselist = (
     :SUSCEPTIBLE,
