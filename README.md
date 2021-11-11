@@ -1,8 +1,29 @@
 # EpiSiming.jl
 
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-green.svg
+[docs-dev-url]: https://modsiming.github.io/EpiSiming.jl/dev/
+
+
+[![][docs-dev-img]][docs-dev-url] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-orange.svg)](https://www.gnu.org/licenses/gpl-3.0) ![GitHub repo size](https://img.shields.io/github/repo-size/modsiming/episiming.jl)
+
 Epidemics simulator (Julia version).
 
-This is the Julia version of [ModSiming/EpiSiming]().
+This is the Julia version of [ModSiming/EpiSiming](https://github.com/ModSiming/EpiSiming).
+
+## Team
+
+- [Beatriz Farah](https://github.com/beafarah)
+- [Cynthia Herkenhoff](https://github.com/herkenhoff-cynthia)
+- [Gil Miranda](https://github.com/mirandagil/)
+- [Ricardo Rosa](http://www.im.ufrj.br/rrosa/)
+- [Rodrigo Peregrino](https://github.com/rodlcp)
+- [Thiago Holleben](https://github.com/hollebenthiago)
+
+## About the name EpiSiming
+
+The name **EpiSiming** comes from combining the prefix **Epi**, from epidemic (of course), with the chinese word **Siming**, which, [according to Wikipedia](https://en.wikipedia.org/wiki/Siming_(deity)), refers to a Chinese deity that makes fine adjustments to the fate of humankind.
+
+*Siming* is also the name of a Chinise district, and the pronunciation of this Chinese district can be heard in [How to Pronounce Siming District - PronounceNames.com](https://www.youtube.com/watch?v=VXkclmg96BQ).
 
 ## A random scenario example
 
