@@ -56,7 +56,7 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
     for n in eachindex(population)
         phase = population.phase[n]
         if phase == SUSCEPTIBLE &&
-                chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
+                @fastmath chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
             population.event_history[n] = k
             population.phase[n] = EXPOSED
         elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
@@ -93,6 +93,7 @@ function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps,
     evolution[:, 1]  .= population.phase # getfield(population, :phase)
     λ = Vector{Float64}(undef, num_population)
     chances = Vector{Float64}(undef, num_population)
+    
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
         step_foward!(rng, population, chances, λ, γ, prob, k)
