@@ -190,8 +190,7 @@ function gen_population(
         Vector{Dict{Symbol, Int}}(undef, num_population) # networks
     )
 
-    @showprogress "Generating $num_population agents... " for 
-            (m, residence) in enumerate(residences)
+    @showprogress "Generating $num_population agents... " for m in eachindex(residences)
         radius = 0.25 / block_grid_num(sum(res_blocks_distrib[residences.block[m]]))
         res_position = residences.position[m]
         for (k, n) in enumerate(residences.residents[m])
