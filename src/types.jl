@@ -85,6 +85,7 @@ Population structure with the following fields:
 struct Population{T, S} <: AbstractVector{Tuple{T, S}}
     phase::Vector{S}
     event_history::Vector{T}
+    evolve_to::Vector{Tuple{S, T}}
     residence::Vector{Int}
     position::Vector{Tuple{Float64, Float64}}
     age::Vector{Int8}
