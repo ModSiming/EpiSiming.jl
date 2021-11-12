@@ -80,7 +80,7 @@ end
 #' Main evolution function
 
 function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps, time_step;
-    verbose::Integer = false
+    verbose_step::Integer = 0
 )
     num_population = length(population)
     evolution = spzeros(Phase, num_population, num_steps)
@@ -96,7 +96,7 @@ function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps,
                 evolution[n, k]  = phase
             end
         end
-        if verbose != false && mod(k, verbose) == 0
+        if verbose_step > 0 && mod(k, verbose_step) == 0
             @info "Done time step $k (day $(k * time_step))"
         end
     end

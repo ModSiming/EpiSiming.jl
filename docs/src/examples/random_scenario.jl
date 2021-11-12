@@ -454,7 +454,7 @@ time_step = 1
     prob,
     num_steps,
     time_step,
-    verbose = 10
+    verbose_step = 10
 )
 
 @time summary = EpiSiming.get_summary(evolution)
