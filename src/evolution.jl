@@ -3,11 +3,17 @@
 #' ## Force of infection
 
 """
-Compute the force of infection for each agent, i.e. return a vector `λ` where each
-`λ[i]`` is the force of infection on the agent with index `i`.
+Compute the force of infection on each individual, i.e. return a vector `λ` where each
+`λ[i]` is the force of infection on the individual with index `i`.
 
-Since we expect the number of susceptibles to be nearly the whole population in most cases,
-we don't care to filter by susceptible, just leaving it zero for non-susceptibles.
+The force of infection `λ[i]` is computed as the sum of the force of infection in each
+group of direct contacts of the individual, be it their residence, their clusters
+(e.g. school, workplace), their network neighbors (e.g. friends, neighbors,
+local shops), and random contact (e.g. commuting, sporadical contacts).
+
+For each group say `i₁, …, iₙ`, the associated force of contact is computed as
+the sum of the infectivity rate for each of the infected individuals, multiplied by the
+transmission rate in that group and divided by the number `n-1` of co-members in the group.
 """
 function force_of_infection!(λ, population, residences, clusters, τ)
     for n in eachindex(population)
@@ -15,7 +21,7 @@ function force_of_infection!(λ, population, residences, clusters, τ)
             res = population.residence[n]
             number_of_coresidents = residences.num_residents[res] - 1
             λ[n] = 0.0
-            if number_of_coresidents > 0
+            if number_of_coresidents ≥ 1
                 for k in residences.residents[res]
                     if population.phase[k] == INFECTED || 
                         population.phase[k] == ASYMPTOMATIC
@@ -27,7 +33,7 @@ function force_of_infection!(λ, population, residences, clusters, τ)
             for (cluster, index) in population.clusters[n]
                 cluster_members = clusters[cluster][index]
                 num_of_cluster_members = length(cluster_members) - 1
-                if num_of_cluster_members > 1 # should not even include clusters with a single member
+                if num_of_cluster_members ≥ 1 # should not even include clusters with a single member
                     cocluster_infectivity = 0.0
                     for k in cluster_members
                         if population.phase[k] == INFECTED || 
@@ -39,7 +45,6 @@ function force_of_infection!(λ, population, residences, clusters, τ)
                 end
             end
         end
-
     end
     return λ
 end
@@ -50,7 +55,8 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
     rand!(rng, chances)
     for n in eachindex(population)
         phase = population.phase[n]
-        if phase == SUSCEPTIBLE && chances[n] ≤ 1 - exp(-λ[n])
+        if phase == SUSCEPTIBLE &&
+                chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
             population.event_history[n] = k
             population.phase[n] = EXPOSED
         elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
