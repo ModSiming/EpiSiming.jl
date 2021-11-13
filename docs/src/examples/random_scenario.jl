@@ -1,13 +1,14 @@
 #+ echo = false
 #
 # Weave it to markdown, for showing on github and in Documenter, with
-# `using Weave`
-# `cd("examples")`
-# `weave("random_scenario.jl", fig_path = "random_scenario_img", doctype = "github")`
+# ```julia
+# ]activate .
+# using Weave
+# cd("docs/src/examples")
+# weave("random_scenario.jl", fig_path = "random_scenario_img", doctype = "github")
+# ```
 #
 # Weave it to html with 
-# `using Weave`
-# `cd("examples")`
 # `weave("random_scenario.jl", fig_path = "random_scenario_img")`
 
 #' # Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario

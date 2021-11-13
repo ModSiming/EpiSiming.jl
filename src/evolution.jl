@@ -59,13 +59,24 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
                 @fastmath chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
             population.event_history[n] = k
             population.phase[n] = EXPOSED
+            #= next_change, next_phase = evolution_rules(rng, EXPOSED)
+            population.evolve_to[n] = (next_phase, k + next_change) =#
+#=         elseif phase != RECOVERED && k ≥ population.evolve_to[n][2]
+            population.event_history[n] = k
+            population.phase[n] = population.evolve_to[n][1]
+            next_change, next_phase = evolution_rules(rng, EXPOSED)
+            population.evolve_to[n] = (next_phase, k + next_change) =#
         elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
             population.event_history[n] = k
             if rand(rng) ≤ prob.asymp
                 population.phase[n] = ASYMPTOMATIC
+                #population.evolve_to[n] = (RECOVERED, k + 5)
             else
                 population.phase[n] = INFECTED
             end
+        #= elseif phase == ASYMPTOMATIC && k ≥ population.evolve_to[n][2]
+            population.event_history[n] = k
+            phase = population.evolve_to[n][1] =#
         elseif phase == ASYMPTOMATIC && chances[n] ≤ γ.rate_asymp
             population.event_history[n] = k
             population.phase[n] = RECOVERED
@@ -100,7 +111,7 @@ function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps,
         for n in 1:num_population
             phase = population.phase[n]
             if phase != SUSCEPTIBLE 
-                evolution[n, k]  = phase
+                evolution[n, k] = phase
             end
         end
         if verbose_step > 0 && mod(k, verbose_step) == 0

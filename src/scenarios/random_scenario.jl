@@ -238,3 +238,51 @@ end
 
 gen_clusters(ind_pop_available, max_size, α) =
     gen_clusters(Random.default_rng(), ind_pop_available, max_size, α)
+
+function evolution_rules(rng, phase::Phase)
+    if phase == EXPOSED
+        next_phase = ifelse(rand(rng) < 0.35, ASYMPTOMATIC, INFECTED)
+        if next_phase == ASYMPTOMATIC
+            next_change = sample(
+                1:8,
+                Weights([0.04, 0.08, 0.16, 0.31, 0.28, 0.08, 0.04, 0.01])
+            )
+        else
+            next_change = sample(
+                1:8,
+                Weights([0.03, 0.07, 0.14, 0.28, 0.30, 0.10, 0.06, 0.02])
+            )
+        end
+    elseif phase == ASYMPTOMATIC
+        next_phase = RECOVERED
+        next_change = sample(
+                1:16,
+                Weights([0.01, 0.02, 0.03, 0.04, 0.08, 0.06, 0.15, 0.16, 0.15, 0.14, 0.06, 0.04, 0.02, 0.02, 0.01, 0.01])
+            )
+    elseif phase == INFECTED
+        next_phase = ifelse(rand(rng) < 0.97, RECOVERED, DECEASED)
+        if next_phase == RECOVERED
+            next_change = sample(
+                1:16,
+                Weights([0.01, 0.02, 0.03, 0.04, 0.08, 0.06, 0.15, 0.16, 0.15, 0.14, 0.06, 0.04, 0.02, 0.02, 0.01, 0.01])
+            )
+        else
+            next_change = sample(
+                1:16,
+                Weights([0.01, 0.02, 0.03, 0.04, 0.08, 0.06, 0.15, 0.16, 0.15, 0.14, 0.06, 0.04, 0.02, 0.02, 0.01, 0.01])
+            )
+        end
+    elseif phase == RECOVERED
+        next_phase = SUSCEPTIBLE
+        next_change = typemax(Int) # should be T from Population{T, S}
+    else
+        throw(
+            ArgumentError(
+                "Evolution rule not implemented for phase $phase"
+            )
+        )
+    end
+    return next_change, next_phase
+end
+
+evolution_rules(phase::Phase) = evolution_rules(Random.default_rng(), phase::Phase)
