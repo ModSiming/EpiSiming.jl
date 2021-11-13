@@ -133,7 +133,7 @@ display(
 
 #' #### Generating residences per block
 
-res_blocks_distrib = EpiSiming.gen_res_blocks(pop_blocks, res_size_distribution)
+res_blocks_distrib = EpiSiming.gen_res_blocks(rng, pop_blocks, res_size_distribution)
 
 #' Visualizations
 
