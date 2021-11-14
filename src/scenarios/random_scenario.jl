@@ -243,6 +243,10 @@ function evolution_rules(rng, phase::Phase)
     if phase == EXPOSED
         next_phase = ifelse(rand(rng) < 0.35, ASYMPTOMATIC, INFECTED)
         if next_phase == ASYMPTOMATIC
+#=             next_change = sample(
+                1:5,
+                Weights([0.1, 0.3, 0.2, 0.1, 0.1])
+            ) =#
             next_change = sample(
                 1:8,
                 Weights([0.04, 0.08, 0.16, 0.31, 0.28, 0.08, 0.04, 0.01])
@@ -273,7 +277,10 @@ function evolution_rules(rng, phase::Phase)
             )
         end
     elseif phase == RECOVERED
-        next_phase = SUSCEPTIBLE
+        next_phase = RECOVERED
+        next_change = typemax(Int) # should be T from Population{T, S}
+    elseif phase == DECEASED
+        next_phase = DECEASED
         next_change = typemax(Int) # should be T from Population{T, S}
     else
         throw(

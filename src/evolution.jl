@@ -59,14 +59,14 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
                 @fastmath chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
             population.event_history[n] = k
             population.phase[n] = EXPOSED
-            #= next_change, next_phase = evolution_rules(rng, EXPOSED)
-            population.evolve_to[n] = (next_phase, k + next_change) =#
-#=         elseif phase != RECOVERED && k ≥ population.evolve_to[n][2]
+            next_change, next_phase = evolution_rules(rng, EXPOSED)
+            population.evolve_to[n] = (next_phase, k + next_change)
+        elseif phase != RECOVERED && k ≥ population.evolve_to[n][2]
             population.event_history[n] = k
             population.phase[n] = population.evolve_to[n][1]
-            next_change, next_phase = evolution_rules(rng, EXPOSED)
-            population.evolve_to[n] = (next_phase, k + next_change) =#
-        elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
+            next_change, next_phase = evolution_rules(rng, phase)
+            population.evolve_to[n] = (next_phase, k + next_change)
+        #= elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
             population.event_history[n] = k
             if rand(rng) ≤ prob.asymp
                 population.phase[n] = ASYMPTOMATIC
@@ -86,7 +86,7 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
                 population.phase[n] = DECEASED
             else
                 population.phase[n] = RECOVERED
-            end
+            end =#
         end
     end
     nothing

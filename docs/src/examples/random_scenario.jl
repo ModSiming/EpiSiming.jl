@@ -436,7 +436,12 @@ num_exposed_at_time_0 = div(num_population, 500) # (= 0.2%) 20
 
 exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
 
-population.phase[exposed_at_time_0] .= EXPOSED
+# population.phase[exposed_at_time_0] .= EXPOSED
+for n in exposed_at_time_0
+    population.phase[n] = EXPOSED
+    next_change, next_phase = EpiSiming.evolution_rules(rng, EXPOSED)
+    population.evolve_to[n] = (next_phase, 1 + next_change)
+end
 
 #' ### Evolution parameters
 
