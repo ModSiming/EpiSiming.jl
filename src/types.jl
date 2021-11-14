@@ -83,9 +83,9 @@ Population structure with the following fields:
 * networks::Vector{Dict{Symbol, Int}}
 """
 struct Population{T, S} <: AbstractVector{Tuple{T, S}}
-    phase::Vector{S}
-    event_history::Vector{T}
-    evolve_to::Vector{Tuple{S, T}}
+    phase::Vector{T}
+    event_history::Vector{S}
+    transition::Vector{Tuple{T, S}}
     residence::Vector{Int}
     position::Vector{Tuple{Float64, Float64}}
     age::Vector{Int8}
@@ -99,6 +99,7 @@ Base.size(population::Population) = size(population.phase)
 Base.getindex(population::Population, n::Int) = (
     population.phase[n],
     population.event_history[n],
+    population.transition[n],
     population.residence[n],
     population.position[n],
     population.age[n],
@@ -111,21 +112,22 @@ Base.getindex(population::Population, n::Int) = (
 function Base.setindex!(
     population::Population{T, S}, 
     v::Tuple{
-        Vector{S}, Vector{T}, Vector{Int}, Vector{Tuple{Float64, Float64}},
-        Vector{Int8}, Vector{Float64}, Vector{Float64},
+        Vector{T}, Vector{S}, Vector{Int}, Vector{Tuple{T, S}},
+        Vector{Tuple{Float64, Float64}}, Vector{Int8}, Vector{Float64}, Vector{Float64},
         Vector{Dict{Symbol, Int}}, Vector{Dict{Symbol, Int}}
     },
     n::Int
 ) where {T, S}
     population.phase[n] = v[1]
     population.event_history[n] = v[2]
-    population.residence[n] = v[3]
-    population.position[n] = v[4]
-    population.age[n] = v[5]
-    population.susceptibility[n] = v[6]
-    population.infectivity[n] = v[7]
-    population.clusters[n] = v[8]
-    population.networks[n] = v[9]
+    population.transition[n] = v[3]
+    population.residence[n] = v[4]
+    population.position[n] = v[5]
+    population.age[n] = v[6]
+    population.susceptibility[n] = v[7]
+    population.infectivity[n] = v[8]
+    population.clusters[n] = v[9]
+    population.networks[n] = v[10]
     return v
 end
 

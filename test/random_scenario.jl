@@ -65,11 +65,15 @@
 
     #' ### Initial infection
 
-    num_exposed_at_time_0 = div(num_population, 500) # (= 0.2%) 20
+    num_exposed_at_time_0 = div(num_population, 500) # ( 1/500 = 0.002 = 0.2%) 20 for 10_000
 
     exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
-
-    population.phase[exposed_at_time_0] .= EXPOSED
+    
+    for n in exposed_at_time_0
+        population.phase[n] = EXPOSED
+        next_change, next_phase = EpiSiming.transition_rules(rng, EXPOSED, 1)
+        population.transition[n] = (next_phase, next_change)
+    end
 
     max_size = 100
     α = 1.8

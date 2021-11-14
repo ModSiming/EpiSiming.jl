@@ -439,8 +439,8 @@ exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace
 # population.phase[exposed_at_time_0] .= EXPOSED
 for n in exposed_at_time_0
     population.phase[n] = EXPOSED
-    next_change, next_phase = EpiSiming.transition_rules(rng, EXPOSED)
-    population.evolve_to[n] = (next_phase, 1 + next_change)
+    next_change, next_phase = EpiSiming.transition_rules(rng, EXPOSED, 1)
+    population.transition[n] = (next_phase, next_change)
 end
 
 #' ### Evolution parameters

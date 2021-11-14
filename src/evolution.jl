@@ -11,7 +11,7 @@ group of direct contacts of the individual, be it their residence, their cluster
 (e.g. school, workplace), their network neighbors (e.g. friends, neighbors,
 local shops), and random contact (e.g. commuting, sporadical contacts).
 
-For each group say `i₁, …, iₙ`, the associated force of contact is computed as
+For each group say `i_1, ..., i_n`, the associated force of contact is computed as
 the sum of the infectivity rate for each of the infected individuals, multiplied by the
 transmission rate in that group and divided by the number `n-1` of co-members in the group.
 """
@@ -32,8 +32,8 @@ function force_of_infection!(λ, population, residences, clusters, τ)
             end
             for (cluster, index) in population.clusters[n]
                 cluster_members = clusters[cluster][index]
-                num_of_cluster_members = length(cluster_members) - 1
-                if num_of_cluster_members ≥ 1 # should not even include clusters with a single member
+                num_of_cluster_comembers = length(cluster_members) - 1
+                if num_of_cluster_comembers ≥ 1 # should not even include clusters with a single member
                     cocluster_infectivity = 0.0
                     for k in cluster_members
                         if population.phase[k] == INFECTED || 
@@ -41,7 +41,7 @@ function force_of_infection!(λ, population, residences, clusters, τ)
                             cocluster_infectivity += population.infectivity[k]
                         end
                     end
-                    λ[n] += τ[cluster] * cocluster_infectivity / num_of_cluster_members
+                    λ[n] += τ[cluster] * cocluster_infectivity / num_of_cluster_comembers
                 end
             end
         end
@@ -59,34 +59,13 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
                 @fastmath chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
             population.event_history[n] = k
             population.phase[n] = EXPOSED
-            next_change, next_phase = transition_rules(rng, EXPOSED)
-            population.evolve_to[n] = (next_phase, k + next_change)
-        elseif phase != RECOVERED && phase != DECEASED && k ≥ population.evolve_to[n][2]
+            next_change, next_phase = transition_rules(rng, EXPOSED, k)
+            population.transition[n] = (next_phase, next_change)
+        elseif phase != RECOVERED && phase != DECEASED && k ≥ population.transition[n][2]
             population.event_history[n] = k
-            population.phase[n] = population.evolve_to[n][1]
-            next_change, next_phase = transition_rules(rng, phase)
-            population.evolve_to[n] = (next_phase, k + next_change)
-        #= elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
-            population.event_history[n] = k
-            if rand(rng) ≤ prob.asymp
-                population.phase[n] = ASYMPTOMATIC
-                #population.evolve_to[n] = (RECOVERED, k + 5)
-            else
-                population.phase[n] = INFECTED
-            end
-        #= elseif phase == ASYMPTOMATIC && k ≥ population.evolve_to[n][2]
-            population.event_history[n] = k
-            phase = population.evolve_to[n][1] =#
-        elseif phase == ASYMPTOMATIC && chances[n] ≤ γ.rate_asymp
-            population.event_history[n] = k
-            population.phase[n] = RECOVERED
-        elseif phase == INFECTED && chances[n] ≤ γ.rate_infec
-            population.event_history[n] = k
-            if rand(rng) ≤ prob.decease
-                population.phase[n] = DECEASED
-            else
-                population.phase[n] = RECOVERED
-            end =#
+            population.phase[n] = population.transition[n][1]
+            next_change, next_phase = transition_rules(rng, phase, k)
+            population.transition[n] = (next_phase, next_change)
         end
     end
     nothing

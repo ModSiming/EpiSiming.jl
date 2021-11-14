@@ -180,7 +180,7 @@ function gen_population(
     population = Population(
         fill(SUSCEPTIBLE, num_population), # phase
         fill(1, num_population), # event_history
-        fill((EXPOSED, typemax(Int)), num_population), # evolve_to
+        fill((EXPOSED, typemax(Int)), num_population), # transition
         Vector{Int}(undef, num_population), # residences
         Vector{Tuple{Float64, Float64}}(undef, num_population), # positions
         ages, # ages
@@ -239,49 +239,49 @@ end
 gen_clusters(ind_pop_available, max_size, α) =
     gen_clusters(Random.default_rng(), ind_pop_available, max_size, α)
 
-function transition_rules(rng, phase::Phase)
+function transition_rules(rng, phase::Phase, k)
     if phase == EXPOSED
         next_phase = ifelse(rand(rng) < 0.35, ASYMPTOMATIC, INFECTED)
         if next_phase == ASYMPTOMATIC
-#=             next_change = sample(
+#=             next_change = k + sample(
                 1:5,
                 Weights([0.1, 0.3, 0.2, 0.1, 0.1])
             ) =#
-            next_change = sample(
+            next_change = k + sample(
                 1:8,
                 Weights([0.04, 0.08, 0.16, 0.31, 0.28, 0.08, 0.04, 0.01])
             )
         else
-            next_change = sample(
+            next_change = k + sample(
                 1:8,
                 Weights([0.03, 0.07, 0.14, 0.28, 0.30, 0.10, 0.06, 0.02])
             )
         end
     elseif phase == ASYMPTOMATIC
         next_phase = RECOVERED
-        next_change = sample(
+        next_change = k + sample(
                 1:16,
                 Weights([0.01, 0.02, 0.03, 0.04, 0.08, 0.06, 0.15, 0.16, 0.15, 0.14, 0.06, 0.04, 0.02, 0.02, 0.01, 0.01])
             )
     elseif phase == INFECTED
         next_phase = ifelse(rand(rng) < 0.97, RECOVERED, DECEASED)
         if next_phase == RECOVERED
-            next_change = sample(
+            next_change = k + sample(
                 1:16,
                 Weights([0.01, 0.02, 0.03, 0.04, 0.08, 0.06, 0.15, 0.16, 0.15, 0.14, 0.06, 0.04, 0.02, 0.02, 0.01, 0.01])
             )
         else
-            next_change = sample(
+            next_change = k + sample(
                 1:16,
                 Weights([0.01, 0.02, 0.03, 0.04, 0.08, 0.06, 0.15, 0.16, 0.15, 0.14, 0.06, 0.04, 0.02, 0.02, 0.01, 0.01])
             )
         end
     elseif phase == RECOVERED
         next_phase = RECOVERED
-        next_change = typemax(Int) # should be T from Population{T, S}
+        next_change = typemax(k) # should be T from Population{T, S}
     elseif phase == DECEASED
         next_phase = DECEASED
-        next_change = typemax(Int) # should be T from Population{T, S}
+        next_change = typemax(k) # should be T from Population{T, S}
     else
         throw(
             ArgumentError(
@@ -292,4 +292,4 @@ function transition_rules(rng, phase::Phase)
     return next_change, next_phase
 end
 
-transition_rules(phase::Phase) = transition_rules(Random.default_rng(), phase::Phase)
+transition_rules(phase::Phase, k) = transition_rules(Random.default_rng(), phase::Phase, k)
