@@ -239,7 +239,7 @@ end
 gen_clusters(ind_pop_available, max_size, α) =
     gen_clusters(Random.default_rng(), ind_pop_available, max_size, α)
 
-function evolution_rules(rng, phase::Phase)
+function transition_rules(rng, phase::Phase)
     if phase == EXPOSED
         next_phase = ifelse(rand(rng) < 0.35, ASYMPTOMATIC, INFECTED)
         if next_phase == ASYMPTOMATIC
@@ -292,4 +292,4 @@ function evolution_rules(rng, phase::Phase)
     return next_change, next_phase
 end
 
-evolution_rules(phase::Phase) = evolution_rules(Random.default_rng(), phase::Phase)
+transition_rules(phase::Phase) = transition_rules(Random.default_rng(), phase::Phase)
