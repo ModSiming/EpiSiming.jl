@@ -51,6 +51,20 @@ end
 
 #' ## Single step forward
 
+"""
+step_foward!(rng, population, chances, λ, k)
+
+A single step forward, based on the given force of infection `λ` (already computed with
+[`force_of_infection!`](@ref)).
+
+`chances` is preallocated and is mutated each step with new random numbers.
+
+The phase transitions from susceptible to exposed depends on the success of
+
+    `chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])`
+
+The transition from the other states are given by `[transition_rules](@ref)`.
+"""
 function step_foward!(rng, population, chances, λ, k)
     rand!(rng, chances)
     for n in eachindex(population)
@@ -76,9 +90,20 @@ end
 
 #' Main evolution function
 
-function evolve!(rng, population, residences, clusters, τ, num_steps, time_step;
+"""
+    evolve!(
+        rng, population, residences, clusters, τ, num_steps, time_step;
+        verbose_step::Integer = 0
+    )
+
+It essentially loops through `[step_foward!](@ref)` as many as `num_steps` times, and
+returns a sparse array with the transition phases ocurring for each individual.
+"""
+function evolve!(
+    rng, population, residences, clusters, τ, num_steps, time_step;
     verbose_step::Integer = 0
 )
+
     num_population = length(population)
     evolution = spzeros(Phase, num_population, num_steps)
     evolution[:, 1]  .= population.phase # getfield(population, :phase)
@@ -103,6 +128,13 @@ end
 
 #' Summary with the total population in each compartiment
 
+"""
+    get_summary(evolution)
+
+With `m` phases (SUSCEPTIBLE, EXPOSED, etc.) and `num_steps` iterations,
+`get_summary(evolution)` returns a `num_steps x m` matrix of Integers with the population
+count at each iteration, on each phase.
+"""
 function get_summary(evolution)
     num_population, num_steps = size(evolution)
     summary = zeros(Int, num_steps, 7)
