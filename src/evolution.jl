@@ -51,7 +51,7 @@ end
 
 #' ## Single step forward
 
-function step_foward!(rng, population, chances, λ, γ, prob, k)
+function step_foward!(rng, population, chances, λ, k)
     rand!(rng, chances)
     for n in eachindex(population)
         phase = population.phase[n]
@@ -76,7 +76,7 @@ end
 
 #' Main evolution function
 
-function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps, time_step;
+function evolve!(rng, population, residences, clusters, τ, num_steps, time_step;
     verbose_step::Integer = 0
 )
     num_population = length(population)
@@ -87,7 +87,7 @@ function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps,
     
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
-        step_foward!(rng, population, chances, λ, γ, prob, k)
+        step_foward!(rng, population, chances, λ, k)
         for n in 1:num_population
             phase = population.phase[n]
             if phase != SUSCEPTIBLE 

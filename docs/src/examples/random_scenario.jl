@@ -87,22 +87,6 @@ end
     :school_places => 0.2
 )
 
-#' #### Recovery rates
-
-γ = (
-    rate_expos = 0.25, # rate out of exposed
-    rate_infec = 0.1, # rate out of infected
-    rate_asymp = 0.2 # rate out of asymptomatic
-)
-
-#' #### Fate probabilities
-
-prob = (
-    asymp = 0.6, # probability of becoming asymptomatic (vs. symptomatic = infected)
-    decease = 0.02 # probability of deceasing
-)
-
-
 #' #### Random number generator
 #'
 #' Set random number generator for repeatability in testings
@@ -456,8 +440,6 @@ time_step = 1
     residences,
     clusters,
     τ,
-    γ,
-    prob,
     num_steps,
     time_step,
     verbose_step = 10
