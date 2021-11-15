@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario · EpiSiming.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../index.html">EpiSiming.jl</a></span></div><form class="docs-search" action="../search.html"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Home</a></li><li><a class="tocitem" href="../structures.html">Structures</a></li><li><a class="tocitem" href="../evolution.html">Evolution</a></li><li><a class="tocitem" href="../examples.html">Examples</a></li><li><a class="tocitem" href="../api.html">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href="random_scenario.html">Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="random_scenario.html">Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/ModSiming/EpiSiming.jl/blob/master/docs/src/examples/random_scenario.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Epidemic-simulation-via-a-discrete-time,-agent-based-stochastic-model-with-a-random-scenario"><a class="docs-heading-anchor" href="#Epidemic-simulation-via-a-discrete-time,-agent-based-stochastic-model-with-a-random-scenario">Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario</a><a id="Epidemic-simulation-via-a-discrete-time,-agent-based-stochastic-model-with-a-random-scenario-1"></a><a class="docs-heading-anchor-permalink" href="#Epidemic-simulation-via-a-discrete-time,-agent-based-stochastic-model-with-a-random-scenario" title="Permalink"></a></h1><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>We construct, here, the scenario for an epidemics, in which the population is composed of a number of agents (or individuals), aggregated into residences, and interacting with each other within the residences and through the following structures:</p><ol><li>clusters of school and workplaces,</li><li>networks of social and commerce connections; and</li><li>causual encounters with the general population.</li></ol><p>In the current example, we build a random scenario, in a rectangular region.</p><h2 id="Loading-packages"><a class="docs-heading-anchor" href="#Loading-packages">Loading packages</a><a id="Loading-packages-1"></a><a class="docs-heading-anchor-permalink" href="#Loading-packages" title="Permalink"></a></h2><pre><code class="language-julia hljs">using Random
+
+using SparseArrays
+
+using StatsBase
+using Distributions
+
+using Plots
+using StatsPlots: groupedbar
+
+using EpiSiming
+
+#=
+using Graphs
+using Graphs
+using GraphPlot
+=#</code></pre><h2 id="Building-the-Scenario"><a class="docs-heading-anchor" href="#Building-the-Scenario">Building the Scenario</a><a id="Building-the-Scenario-1"></a><a class="docs-heading-anchor-permalink" href="#Building-the-Scenario" title="Permalink"></a></h2><h3 id="Set-global-parameters"><a class="docs-heading-anchor" href="#Set-global-parameters">Set global parameters</a><a id="Set-global-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Set-global-parameters" title="Permalink"></a></h3><h4 id="Population-number"><a class="docs-heading-anchor" href="#Population-number">Population number</a><a id="Population-number-1"></a><a class="docs-heading-anchor-permalink" href="#Population-number" title="Permalink"></a></h4><pre><code class="language-julia hljs">num_population = 10_000</code></pre><pre><code class="nohighlight hljs">10000</code></pre><h4 id="Region-size"><a class="docs-heading-anchor" href="#Region-size">Region size</a><a id="Region-size-1"></a><a class="docs-heading-anchor-permalink" href="#Region-size" title="Permalink"></a></h4><pre><code class="language-julia hljs">region_size = (6, 12)</code></pre><pre><code class="nohighlight hljs">(6, 12)</code></pre><h4 id="Distribution-of-residences-per-size"><a class="docs-heading-anchor" href="#Distribution-of-residences-per-size">Distribution of residences per size</a><a id="Distribution-of-residences-per-size-1"></a><a class="docs-heading-anchor-permalink" href="#Distribution-of-residences-per-size" title="Permalink"></a></h4><pre><code class="language-julia hljs">res_size_distribution = [10, 22, 33, 22, 5, 5, 2, 1] |&gt; v -&gt; Weights(v / sum(v))</code></pre><pre><code class="nohighlight hljs">8-element StatsBase.Weights{Float64, Float64, Vector{Float64}}:
+ 0.1
+ 0.22
+ 0.33
+ 0.22
+ 0.05
+ 0.05
+ 0.02
+ 0.01</code></pre><h4 id="Susceptibility-and-infectivity-parameters"><a class="docs-heading-anchor" href="#Susceptibility-and-infectivity-parameters">Susceptibility and infectivity parameters</a><a id="Susceptibility-and-infectivity-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Susceptibility-and-infectivity-parameters" title="Permalink"></a></h4><p>Parameters of the Gamma distribution for the susceptibility and infectivity factors</p><pre><code class="language-julia hljs">Γ = (
+    sus_shape = 2.0,
+    sus_scale = 0.5,
+    inf_shape = 4.0,
+    inf_scale= 0.25
+)</code></pre><pre><code class="nohighlight hljs">(sus_shape = 2.0, sus_scale = 0.5, inf_shape = 4.0, inf_scale = 0.25)</code></pre><h4 id="Age-pyramid"><a class="docs-heading-anchor" href="#Age-pyramid">Age pyramid</a><a id="Age-pyramid-1"></a><a class="docs-heading-anchor-permalink" href="#Age-pyramid" title="Permalink"></a></h4><pre><code class="language-julia hljs">pop_pyramid = let age_max = 100, p = 2, pyramid_func(a, age_max, p) = ( a + 1 ) * (age_max - a)^p
+    Weights(
+        pyramid_func.(0:age_max, age_max, p) / sum(pyramid_func.(0:age_max, age_max, p))
+    )
+end</code></pre><pre><code class="nohighlight hljs">101-element StatsBase.Weights{Float64, Float64, Vector{Float64}}:
+ 0.0011532894698904953
+ 0.0022606780188793485
+ 0.0033228576206484946
+ 0.004340520248879868
+ 0.005314357877255402
+ 0.006245062479457031
+ 0.0071333260291666905
+ 0.007979840500066315
+ 0.008785297865837836
+ 0.00955039010016319
+ ⋮
+ 0.0006864378924788228
+ 0.000531205129831562
+ 0.00039442499870254936
+ 0.0002767894727737188
+ 0.00017899052572700484
+ 0.00010172013124434167
+ 4.567026300766361e-5
+ 1.1532894698904952e-5
+ 0.0</code></pre><h4 id="Contact-rates"><a class="docs-heading-anchor" href="#Contact-rates">Contact rates</a><a id="Contact-rates-1"></a><a class="docs-heading-anchor-permalink" href="#Contact-rates" title="Permalink"></a></h4><pre><code class="language-julia hljs">τ = Dict{Symbol, Float64}(
+    :residences =&gt; 0.3,
+    :work_places =&gt; 0.1,
+    :school_places =&gt; 0.2
+)</code></pre><pre><code class="nohighlight hljs">Dict{Symbol, Float64} with 3 entries:
+  :work_places   =&gt; 0.1
+  :school_places =&gt; 0.2
+  :residences    =&gt; 0.3</code></pre><h4 id="Recovery-rates"><a class="docs-heading-anchor" href="#Recovery-rates">Recovery rates</a><a id="Recovery-rates-1"></a><a class="docs-heading-anchor-permalink" href="#Recovery-rates" title="Permalink"></a></h4><pre><code class="language-julia hljs">γ = (
+    rate_expos = 0.25, # rate out of exposed
+    rate_infec = 0.1, # rate out of infected
+    rate_asymp = 0.2 # rate out of asymptomatic
+)</code></pre><pre><code class="nohighlight hljs">(rate_expos = 0.25, rate_infec = 0.1, rate_asymp = 0.2)</code></pre><h4 id="Fate-probabilities"><a class="docs-heading-anchor" href="#Fate-probabilities">Fate probabilities</a><a id="Fate-probabilities-1"></a><a class="docs-heading-anchor-permalink" href="#Fate-probabilities" title="Permalink"></a></h4><pre><code class="language-julia hljs">prob = (
+    asymp = 0.6, # probability of becoming asymptomatic (vs. symptomatic = infected)
+    decease = 0.02 # probability of deceasing
+)</code></pre><pre><code class="nohighlight hljs">(asymp = 0.6, decease = 0.02)</code></pre><h4 id="Random-number-generator"><a class="docs-heading-anchor" href="#Random-number-generator">Random number generator</a><a id="Random-number-generator-1"></a><a class="docs-heading-anchor-permalink" href="#Random-number-generator" title="Permalink"></a></h4><p>Set random number generator for repeatability in testings</p><pre><code class="language-julia hljs">rng = MersenneTwister(123)</code></pre><pre><code class="nohighlight hljs">MersenneTwister(123)</code></pre><h3 id="Generating-scenario"><a class="docs-heading-anchor" href="#Generating-scenario">Generating scenario</a><a id="Generating-scenario-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-scenario" title="Permalink"></a></h3><h4 id="Generating-a-random-matrix-of-blocks-with-the-population-divided-per-block"><a class="docs-heading-anchor" href="#Generating-a-random-matrix-of-blocks-with-the-population-divided-per-block">Generating a random matrix of blocks with the population divided per block</a><a id="Generating-a-random-matrix-of-blocks-with-the-population-divided-per-block-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-a-random-matrix-of-blocks-with-the-population-divided-per-block" title="Permalink"></a></h4><pre><code class="language-julia hljs">pop_blocks = EpiSiming.gen_random_pop_blocks(rng, num_population, region_size)</code></pre><pre><code class="nohighlight hljs">6×12 Matrix{Int64}:
+ 265  118  124   93  209   71  256  182  230   16  150   25
+  99  250   29  252  252  154  113  118  182  108  267  196
+  75   78  163  233   14  207   71  234  208  186  158  211
+ 134  151   26   40   27  164    4   86   73   73  179  225
+ 175   10   81   75  197  184   71  242   35   60  108  150
+ 140  152  252  114  235   98   20  252   88   55  275  152</code></pre><p>Heatmap</p><pre><code class="language-julia hljs">display(
+    heatmap(
+        pop_blocks,
+        c = cgrad([:white, :orange, :red]),
+        annotate = [
+            (j, i, text(pop_blocks[i, j], 8, :black, :center))
+            for i in 1:size(pop_blocks, 1) for j in 1:size(pop_blocks, 2)
+        ],
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        title = &quot;Distribution per block of the $num_population area residents&quot;,
+        titlefont = 10
+    )
+)</code></pre><p><img src="random_scenario_img/random_scenario_13_1.png" alt/></p><h4 id="Generating-residences-per-block"><a class="docs-heading-anchor" href="#Generating-residences-per-block">Generating residences per block</a><a id="Generating-residences-per-block-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-residences-per-block" title="Permalink"></a></h4><pre><code class="language-julia hljs">res_blocks_distrib = EpiSiming.gen_res_blocks(rng, pop_blocks, res_size_distribution)</code></pre><pre><code class="nohighlight hljs">6×12 Matrix{Vector{Int64}}:
+ [10, 22, 28, 19, 4, 4, 1, 0]  …  [1, 3, 2, 3, 0, 0, 0, 0]
+ [5, 9, 12, 6, 2, 1, 0, 0]        [6, 14, 22, 14, 3, 3, 1, 0]
+ [4, 7, 7, 5, 2, 1, 0, 0]         [6, 15, 23, 15, 3, 4, 1, 0]
+ [5, 11, 15, 10, 2, 2, 0, 0]      [8, 20, 24, 15, 4, 3, 1, 0]
+ [6, 14, 19, 12, 2, 2, 2, 0]      [5, 12, 16, 11, 2, 2, 1, 0]
+ [8, 9, 16, 11, 2, 2, 0, 0]    …  [5, 10, 16, 11, 2, 3, 1, 0]</code></pre><p>Visualizations</p><pre><code class="language-julia hljs">display(
+    groupedbar(
+        [res_size_distribution sum(res_blocks_distrib) /
+            sum(Iterators.flatten(res_blocks_distrib))],
+        xticks = eachindex(res_size_distribution),
+        bar_position = :dodge,
+        bar_width = 0.7,
+        label = [&quot;target&quot; &quot;generated&quot;],
+        xlabel = &quot;residence size&quot;,
+        ylabel = &quot;fraction of residences&quot;,
+        title = &quot;distribution of residences per size&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    histogram(
+        reshape(pop_blocks ./ map(sum, res_blocks_distrib), :, 1),
+        bins = firstindex(res_size_distribution):0.1:lastindex(res_size_distribution),
+        label = nothing,
+        xlabel = &quot;ratio of residents per residence&quot;,
+        ylabel = &quot;number of blocks&quot;,
+        title = &quot;Distribution of the number of blocks per average residence size&quot; *
+            &quot;\nMean of the blocks average size: &quot; * 
+            &quot;$(round(mean(pop_blocks ./ map(sum, res_blocks_distrib)), digits = 2))&quot;,
+        titlefont = 10
+    )
+)</code></pre><p><img src="random_scenario_img/random_scenario_15_1.png" alt/> <img src="random_scenario_img/random_scenario_15_2.png" alt/></p><h4 id="Generating-the-list-of-residences-with-all-the-required-information"><a class="docs-heading-anchor" href="#Generating-the-list-of-residences-with-all-the-required-information">Generating the list of residences with all the required information</a><a id="Generating-the-list-of-residences-with-all-the-required-information-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-the-list-of-residences-with-all-the-required-information" title="Permalink"></a></h4><pre><code class="language-julia hljs">residences = EpiSiming.gen_residences(rng, res_blocks_distrib)</code></pre><pre><code class="nohighlight hljs">3318-element EpiSiming.Residences{Int64, Float64}:
+ (1, (1.5555555555555556, 1.3888888888888888), 1, [1])
+ (1, (1.5, 1.0), 1, [2])
+ (1, (1.5, 1.5), 1, [3])
+ (1, (1.7222222222222223, 1.2222222222222223), 1, [4])
+ (1, (1.9444444444444444, 1.5), 1, [5])
+ (1, (1.3333333333333333, 1.7777777777777777), 1, [6])
+ (1, (1.5555555555555556, 1.0555555555555556), 1, [7])
+ (1, (1.5555555555555556, 1.2777777777777777), 1, [8])
+ (1, (1.6111111111111112, 1.6111111111111112), 1, [9])
+ (1, (1.7222222222222223, 1.7222222222222223), 1, [10])
+ ⋮
+ (72, (6.083333333333333, 12.25), 4, [9954, 9955, 9956, 9957])
+ (72, (6.666666666666667, 12.916666666666666), 4, [9958, 9959, 9960, 9961])
+ (72, (6.083333333333333, 12.5), 4, [9962, 9963, 9964, 9965])
+ (72, (6.916666666666667, 12.5), 5, [9966, 9967, 9968, 9969, 9970])
+ (72, (6.166666666666667, 12.5), 5, [9971, 9972, 9973, 9974, 9975])
+ (72, (6.083333333333333, 12.916666666666666), 6, [9976, 9977, 9978, 9979, 
+9980, 9981])
+ (72, (6.5, 12.75), 6, [9982, 9983, 9984, 9985, 9986, 9987])
+ (72, (6.083333333333333, 12.75), 6, [9988, 9989, 9990, 9991, 9992, 9993])
+ (72, (6.916666666666667, 12.583333333333334), 7, [9994, 9995, 9996, 9997, 
+9998, 9999, 10000])</code></pre><p>Visualizations</p><pre><code class="language-julia hljs">display(
+    scatter(
+        residences.position,
+        markersize = 2,
+        markerstrokecolor = :auto,
+        label = false,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        title = &quot;Residences&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    scatter(
+        filter( p -&gt; (2.0 ≤ first(p) ≤ 3.0) &amp;&amp; (2.0 ≤ last(p) ≤ 3.0), residences.position),
+        markersize = 2,
+        markerstrokecolor = :auto,
+        label = false,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        title = &quot;Residences&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    scatter(
+        filter( p -&gt; (2.0 ≤ first(p) ≤ 2.2) &amp;&amp; (2.0 ≤ last(p) ≤ 2.2), residences.position),
+        markersize = 2,
+        markerstrokecolor = :auto,
+        label = false,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        title = &quot;Residences&quot;,
+        titlefont = 10
+    )
+)</code></pre><p><img src="random_scenario_img/random_scenario_17_1.png" alt/> <img src="random_scenario_img/random_scenario_17_2.png" alt/> <img src="random_scenario_img/random_scenario_17_3.png" alt/></p><h4 id="Generating-population"><a class="docs-heading-anchor" href="#Generating-population">Generating population</a><a id="Generating-population-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-population" title="Permalink"></a></h4><pre><code class="language-julia hljs">population = EpiSiming.gen_population(
+    rng,
+    residences,
+    res_blocks_distrib,
+    Γ,
+    pop_pyramid
+)</code></pre><pre><code class="nohighlight hljs">10000-element EpiSiming.Population{EpiSiming.Phase, Int64, Int64, Float64, 
+Int8, Float64, Symbol}:
+ (S, 1, (E, 9223372036854775807), 1, (1.5694444444444444, 1.388888888888888
+8), 64, 0.8429668909281123, 1.0871421914278978, Dict{Symbol, Int64}(), Dict
+{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 2, (1.5138888888888888, 1.0), 34, 0.63460
+32739780121, 0.9288554210581556, Dict{Symbol, Int64}(), Dict{Symbol, Int64}
+())
+ (S, 1, (E, 9223372036854775807), 3, (1.5138888888888888, 1.5), 29, 1.86613
+6384893467, 0.6379958240264992, Dict{Symbol, Int64}(), Dict{Symbol, Int64}(
+))
+ (S, 1, (E, 9223372036854775807), 4, (1.7361111111111112, 1.222222222222222
+3), 21, 1.9630070493538805, 0.49089045628844613, Dict{Symbol, Int64}(), Dic
+t{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 5, (1.9583333333333333, 1.5), 11, 0.17974
+072857925905, 0.9196908284361106, Dict{Symbol, Int64}(), Dict{Symbol, Int64
+}())
+ (S, 1, (E, 9223372036854775807), 6, (1.347222222222222, 1.7777777777777777
+), 18, 0.8018440204599591, 0.8572836161482715, Dict{Symbol, Int64}(), Dict{
+Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 7, (1.5694444444444444, 1.055555555555555
+6), 46, 0.7121991800323644, 1.4273823226339426, Dict{Symbol, Int64}(), Dict
+{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 8, (1.5694444444444444, 1.277777777777777
+7), 47, 0.7803803598677808, 0.7458566679008322, Dict{Symbol, Int64}(), Dict
+{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 9, (1.625, 1.6111111111111112), 84, 0.753
+3507391116316, 1.0597501527579962, Dict{Symbol, Int64}(), Dict{Symbol, Int6
+4}())
+ (S, 1, (E, 9223372036854775807), 10, (1.7361111111111112, 1.72222222222222
+23), 47, 1.0583784725947785, 0.6163376056877701, Dict{Symbol, Int64}(), Dic
+t{Symbol, Int64}())
+ ⋮
+ (S, 1, (E, 9223372036854775807), 3317, (6.072916666666666, 12.731957804087
+823), 39, 0.7425559871162212, 1.878529197903739, Dict{Symbol, Int64}(), Dic
+t{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 3317, (6.09375, 12.731957804087823), 74, 
+1.3467418715174564, 0.6158224898743601, Dict{Symbol, Int64}(), Dict{Symbol,
+ Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.9375, 12.583333333333334), 21, 0
+.5713254684769675, 1.2604338561736381, Dict{Symbol, Int64}(), Dict{Symbol, 
+Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.929656037538724, 12.599621489218
+084), 63, 0.71166954083545, 0.6573989249359745, Dict{Symbol, Int64}(), Dict
+{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.91203081387591, 12.6036443315037
+89), 35, 0.9299123501842387, 0.5603267260793015, Dict{Symbol, Int64}(), Dic
+t{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.8978964819187, 12.59237257789828
+3), 8, 0.3495478705397754, 0.7703472343146436, Dict{Symbol, Int64}(), Dict{
+Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.8978964819187, 12.57429408876838
+5), 22, 0.6946812843355863, 2.073824042353887, Dict{Symbol, Int64}(), Dict{
+Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.91203081387591, 12.5630223351628
+79), 24, 1.1293777785439765, 1.4010740192330449, Dict{Symbol, Int64}(), Dic
+t{Symbol, Int64}())
+ (S, 1, (E, 9223372036854775807), 3318, (6.929656037538724, 12.567045177448
+584), 62, 0.8959454204650464, 1.9864694366090996, Dict{Symbol, Int64}(), Di
+ct{Symbol, Int64}())</code></pre><h4 id="Susceptibility-distribution"><a class="docs-heading-anchor" href="#Susceptibility-distribution">Susceptibility distribution</a><a id="Susceptibility-distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Susceptibility-distribution" title="Permalink"></a></h4><pre><code class="language-julia hljs">display(
+    scatter(
+        population.susceptibility,
+        title = &quot;Susceptibility (gamma distribution with mean $(Γ.sus_shape * Γ.sus_scale))&quot;,
+        titlefont = 10,
+        label = nothing,
+        xlabel = &quot;sample of population&quot;,
+        ylabel = &quot;susceptibility&quot;
+    )
+)
+
+let bins = 100, interval = extrema(population.susceptibility) |&gt;  u -&gt; u[2] - u[1]
+    plt = histogram(
+        population.susceptibility,
+        bins = bins,
+        label = &quot;generated&quot;,
+        title = &quot;susceptibility histogram&quot;,
+        titlefont = 10,
+        xlabel = &quot;susceptibility&quot;,
+        ylabel = &quot;population&quot;
+    )
+    plot!(
+        plt,
+        x -&gt; (num_population * interval / bins + 1) *
+            Distributions.pdf(Distributions.Gamma(Γ.sus_shape, Γ.sus_scale), x),
+            label = &quot;target (Gamma distribution)&quot;
+    )
+    display(plt)
+end</code></pre><p><img src="random_scenario_img/random_scenario_19_1.png" alt/> <img src="random_scenario_img/random_scenario_19_2.png" alt/></p><h4 id="Infectivity"><a class="docs-heading-anchor" href="#Infectivity">Infectivity</a><a id="Infectivity-1"></a><a class="docs-heading-anchor-permalink" href="#Infectivity" title="Permalink"></a></h4><pre><code class="language-julia hljs">display(
+    scatter(
+        population.infectivity,
+        title = &quot;Infectivity (gamma distribution with mean $(Γ.inf_shape * Γ.inf_scale))&quot;,
+        titlefont = 10,
+        label = nothing,
+        xlabel = &quot;sample of population&quot;,
+        ylabel = &quot;infectivity&quot;
+    )
+)
+
+let bins = 100, interval = extrema(population.infectivity) |&gt;  u -&gt; u[2] - u[1]
+    plt = histogram(
+        population.infectivity,
+        bins = bins,
+        label = &quot;generated&quot;,
+        title = &quot;infectivity histogram&quot;,
+        titlefont = 10,
+        xlabel = &quot;infectivity&quot;,
+        ylabel = &quot;population&quot;
+    )
+
+    plot!(
+        plt,
+        x -&gt; (num_population * interval / bins + 1) *
+            Distributions.pdf(Distributions.Gamma(Γ.inf_shape, Γ.inf_scale), x),
+        label = &quot;target (Gamma distribution)&quot;
+    )
+    display(plt)
+end</code></pre><p><img src="random_scenario_img/random_scenario_20_1.png" alt/> <img src="random_scenario_img/random_scenario_20_2.png" alt/></p><h4 id="Age-distribution"><a class="docs-heading-anchor" href="#Age-distribution">Age distribution</a><a id="Age-distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Age-distribution" title="Permalink"></a></h4><pre><code class="language-julia hljs">plt = histogram(
+    population.age,
+    bins = length(pop_pyramid) + 1,
+    label = &quot;generated&quot;,
+    title = &quot;Age pyramid&quot;,
+    titlefont = 10,
+    xlabel = &quot;age&quot;,
+    ylabel = &quot;individuals&quot;
+)
+
+plot!(plt, 0:length(pop_pyramid) - 1, num_population * pop_pyramid, label = &quot;target&quot;)
+display(plt)</code></pre><p><img src="random_scenario_img/random_scenario_21_1.png" alt/></p><h4 id="Agents-location"><a class="docs-heading-anchor" href="#Agents-location">Agents location</a><a id="Agents-location-1"></a><a class="docs-heading-anchor-permalink" href="#Agents-location" title="Permalink"></a></h4><pre><code class="language-julia hljs">display(
+    scatter(
+        population.position,
+        c = map(s -&gt; EpiSiming.phase_colors[s], population.phase),
+        markersize = 1,
+        markerstrokecolor = :auto,
+        label = false,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        title = &quot;Population&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    scatter(
+        filter(p -&gt; (3.0 &lt; first(p) &lt; 4.0) &amp; (1.0 &lt; last(p) &lt; 2.0), population.position),
+        c = map(
+            n -&gt; EpiSiming.phase_colors[population.phase[n]],
+            filter(
+                n -&gt; (3.0 &lt; first(population.position[n]) &lt; 4.0) &amp;
+                    (1.0 &lt; last(population.position[n]) &lt; 2.0),
+                    eachindex(population.position)
+            )
+        ),
+        markersize = 4,
+        markerstrokecolor = :auto,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        label = false,
+        title = &quot;Population&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    scatter(
+        filter(p -&gt; (3.2 &lt; first(p) &lt; 3.8) &amp; (1.2 &lt; last(p) &lt; 1.8), population.position),
+        c = map(
+            n -&gt; EpiSiming.phase_colors[population.phase[n]],
+            filter(
+                n -&gt; (3.2 &lt; first(population.position[n]) &lt; 3.8) &amp;
+                    (1.2 &lt; last(population.position[n]) &lt; 1.8),
+                    eachindex(population.position)
+            )
+        ),
+        markersize = 4,
+        markerstrokecolor = :auto,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        label = false,
+        title = &quot;Population&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    scatter!(
+        filter( p -&gt; (3.2 ≤ first(p) ≤ 3.8) &amp;&amp; (1.2 ≤ last(p) ≤ 1.8), residences.position),
+        markersize = 4,
+        markerstrokecolor = :auto,
+        color = :green,
+        label = false,
+        xlabel = &quot;km&quot;,
+        ylabel = &quot;km&quot;,
+        title = &quot;Residences&quot;,
+        titlefont = 10
+    )
+)</code></pre><p><img src="random_scenario_img/random_scenario_22_1.png" alt/> <img src="random_scenario_img/random_scenario_22_2.png" alt/> <img src="random_scenario_img/random_scenario_22_3.png" alt/> <img src="random_scenario_img/random_scenario_22_4.png" alt/></p><h3 id="Generate-clusters"><a class="docs-heading-anchor" href="#Generate-clusters">Generate clusters</a><a id="Generate-clusters-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-clusters" title="Permalink"></a></h3><pre><code class="language-julia hljs">max_size = 100
+α = 1.8
+
+clusters = Dict{Symbol, Vector{Vector{Int}}}()
+
+push!(
+    clusters,
+    :work_places =&gt; EpiSiming.gen_clusters(
+        rng,
+        filter(n -&gt; population.age[n] ≥ 18, 1:num_population),
+        max_size,
+        α
+    )
+)
+
+push!(
+    clusters,
+    :school_places =&gt; EpiSiming.gen_clusters(
+        rng,
+        filter(n -&gt; population.age[n] &lt; 20, 1:num_population),
+        max_size,
+        α
+    )
+)
+
+for (k, v) in clusters
+    for (i, r) in enumerate(v)
+        for n in r
+            push!(population.clusters[n], k =&gt; i)
+        end
+    end
+end</code></pre><p>Visualizations</p><pre><code class="language-julia hljs">plt = histogram(
+    length.(clusters[:work_places]),
+    bins = max_size,
+    xlabel = &quot;work size&quot;,
+    ylabel = &quot;number of work places&quot;,
+    label = &quot;generated&quot;,
+    title = &quot;Distribution of work places according to size&quot;,
+    titlefont = 10
+)
+plot!(
+    plt,
+    length(clusters[:work_places]) * EpiSiming.decay.(1:max_size, α) / sum(EpiSiming.decay.(1:max_size, α)),
+    linewidth = 2,
+    label = &quot;target&quot;
+)
+display(plt)</code></pre><p><img src="random_scenario_img/random_scenario_24_1.png" alt/></p><h2 id="Evolution-of-the-epidemics"><a class="docs-heading-anchor" href="#Evolution-of-the-epidemics">Evolution of the epidemics</a><a id="Evolution-of-the-epidemics-1"></a><a class="docs-heading-anchor-permalink" href="#Evolution-of-the-epidemics" title="Permalink"></a></h2><h3 id="Initial-infection"><a class="docs-heading-anchor" href="#Initial-infection">Initial infection</a><a id="Initial-infection-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-infection" title="Permalink"></a></h3><pre><code class="language-julia hljs">num_exposed_at_time_0 = div(num_population, 500) # ( 1/500 = 0.002 = 0.2%) 20 for 10_000
+
+exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
+
+# population.phase[exposed_at_time_0] .= EXPOSED
+for n in exposed_at_time_0
+    population.phase[n] = EXPOSED
+    next_phase, next_change = EpiSiming.transition_rules(rng, EXPOSED, 1)
+    population.next_transition[n] = (next_phase, next_change)
+end</code></pre><h3 id="Evolution-parameters"><a class="docs-heading-anchor" href="#Evolution-parameters">Evolution parameters</a><a id="Evolution-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Evolution-parameters" title="Permalink"></a></h3><pre><code class="language-julia hljs">num_steps = 360
+time_step = 1</code></pre><pre><code class="nohighlight hljs">1</code></pre><h3 id="Time-evolution"><a class="docs-heading-anchor" href="#Time-evolution">Time evolution</a><a id="Time-evolution-1"></a><a class="docs-heading-anchor-permalink" href="#Time-evolution" title="Permalink"></a></h3><pre><code class="language-julia hljs">@time evolution = EpiSiming.evolve!(
+    rng,
+    population,
+    residences,
+    clusters,
+    τ,
+    γ,
+    prob,
+    num_steps,
+    time_step,
+    verbose_step = 10
+)
+
+@time summary = EpiSiming.get_summary(evolution)</code></pre><pre><code class="nohighlight hljs">1.559234 seconds (367.95 k allocations: 61.696 MiB, 2.46% gc time, 11.73%
+ compilation time)
+  0.215873 seconds (2 allocations: 19.766 KiB)
+360×7 Matrix{Int64}:
+ 9980  20   0   0     0    0  0
+ 9980  18   0   2     0    0  0
+ 9979  18   1   2     0    0  0
+ 9977  18   2   3     0    0  0
+ 9975  16   5   4     0    0  0
+ 9973  12  11   4     0    0  0
+ 9971   8  14   7     0    0  0
+ 9965  11  14  10     0    0  0
+ 9957  17  16  10     0    0  0
+ 9949  24  17  10     0    0  0
+    ⋮                      ⋮  
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0
+ 1987   0   0   0  7872  141  0</code></pre><p>Visualizations</p><pre><code class="language-julia hljs">display(
+    plot(
+        summary[:, 2:end],
+        labels = string.(reduce(hcat, EpiSiming.phaselist[2:end])),
+        legend = :left,
+        xlabel = &quot;day&quot;,
+        ylabel = &quot;cases&quot;,
+        title = &quot;time evolution of cases&quot;,
+        titlefont = 10
+    )
+)
+
+display(
+    plot(
+        summary[:, [2, 3, 4, 6]],
+        labels = string.(reduce(hcat, EpiSiming.phaselist[[2, 3, 4, 6]])),
+        legend = :right,
+        xlabel = &quot;day&quot;,
+        ylabel = &quot;cases&quot;,
+        title = &quot;time evolution of cases&quot;,
+        titlefont = 10
+    )
+)</code></pre><p><img src="random_scenario_img/random_scenario_27_1.png" alt/> <img src="random_scenario_img/random_scenario_27_2.png" alt/></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.10 on <span class="colophon-date" title="Monday 15 November 2021 11:41">Monday 15 November 2021</span>. Using Julia version 1.6.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
