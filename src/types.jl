@@ -1,17 +1,17 @@
 # Types for Episiming.jl
 
 """
-    primitive type Phase <: Number 8 end
+    primitive type Phase 8 end
 
-`Phase` is a primitive subtype of `Number` with 8 bits, representing the different
-phases, or stages, of a disease, for a given individual. The following phases are
-defined as (global) constants:
-* SUSCEPTIBLE = Phase(0)
-* EXPOSED = Phase(1)
-* INFECTED = Phase(2)
-* ASYMPTOMATIC = Phase(3)
-* RECOVERED = Phase(4)
-* DECEASED = Phase(5)
+`Phase` is a primitive type with 8 bits, representing the different phases, or stages,
+of a disease, for a given individual. The following phases are defined as (global)
+constants:
+* `SUSCEPTIBLE = Phase(0)`
+* `EXPOSED = Phase(1)`
+* `INFECTED = Phase(2)`
+* `ASYMPTOMATIC = Phase(3)`
+* `RECOVERED = Phase(4)`
+* `DECEASED = Phase(5)`
 """
 primitive type Phase 8 end
 
@@ -70,16 +70,16 @@ const phase_colors = Dict(
     struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{{R, S, T, U, V, W, X}}}
 
 Population structure with the following fields:
-* phase::Vector{R}
-* past_transition::Vector{S}
-* next_transition::Vector{Tuple{R, S}}
-* residence::Vector{T}
-* position::Vector{Tuple{U, U}}
-* age::Vector{V}
-* susceptibility::Vector{W}
-* infectivity::Vector{W}
-* clusters::Vector{Dict{X, T}}
-* networks::Vector{Dict{X, T}}
+* `phase::Vector{R}`
+* `past_transition::Vector{S}`
+* `next_transition::Vector{Tuple{R, S}}`
+* `residence::Vector{T}`
+* `position::Vector{Tuple{U, U}}`
+* `age::Vector{V}`
+* `susceptibility::Vector{W}`
+* `infectivity::Vector{W}`
+* `clusters::Vector{Dict{X, T}}`
+* `networks::Vector{Dict{X, T}}`
 
 Usually, `R=Phase`, `S=Int`, `T=U=Int`, `U=W=Float64`, `X=Symbol`.
 If is a huge population and memory is critical, one can set `S=Int16`, `U=Float16`,
@@ -150,10 +150,10 @@ end
     Residences{T, S} <: AbstractVector{Tuple{T, S}}
 
 Residences structure with the following fields:
-* block::Vector{T}
-* position::Vector{Tuple{S, S}}
-* num_residents::Vector{T}
-* residents::Vector{Vector{T}}
+* `block::Vector{T}`
+* `position::Vector{Tuple{S, S}}`
+* `num_residents::Vector{T}`
+* `residents::Vector{Vector{T}}`
 
 Usually, `T` is an `Int` and `S` is a floating point type.
 """
@@ -190,10 +190,10 @@ end
     struct Clusters{R, S, T, U}
 
 Clusters structure with the following fields:
-* id::R
-* name::S
-* contact_rate::T
-* clusters::Vector{Vector{U}}
+* `id::R`
+* `name::S`
+* `contact_rate::T`
+* `clusters::Vector{Vector{U}}`
 """
 struct Clusters{R, S, T, U}
     id::R
@@ -216,20 +216,20 @@ end
 """
 Structure for the Scenario, with the following fields:
 
-* name::String
-* info::String
-* num_population::Int
-* population::Population
-* residences::Residences
-* res_size_distribution::StatsBase.Weights{Float64, Float64, Vector{Float64}}
-* pop_pyramid::StatsBase.Weights{Float64, Float64, Vector{Float64}}
-* Γ_susceptibility::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
-* Γ_infectivity::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}
-* contact_rate::NamedTuple{(:residences, :general), Tuple{Float64, Float64}}
-* recovery_rate::NamedTuple{
-      (:exposed, :infected, :asymptomatic),
-      Tuple{Float64, Float64, Float64}
-  }
+* `name::String`
+* `info::String`
+* `num_population::Int`
+* `population::Population`
+* `residences::Residences`
+* `res_size_distribution::StatsBase.Weights{Float64, Float64, Vector{Float64}}`
+* `pop_pyramid::StatsBase.Weights{Float64, Float64, Vector{Float64}}`
+* `Γ_susceptibility::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}`
+* `Γ_infectivity::NamedTuple{(:shape, :scale), Tuple{Float64, Float64}}`
+* `contact_rate::NamedTuple{(:residences, :general), Tuple{Float64, Float64}}`
+* `recovery_rate::NamedTuple{
+        (:exposed, :infected, :asymptomatic),
+        Tuple{Float64, Float64, Float64}
+  }`
 """
 struct Scenario
     name::String

@@ -63,7 +63,7 @@ The phase transitions from susceptible to exposed depends on the success of
 
     `chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])`
 
-The transition from the other states are given by `[transition_rules](@ref)`.
+The transition from the other states are given by [`transition_rules`](@ref).
 """
 function step_foward!(rng, population, chances, λ, k)
     rand!(rng, chances)
@@ -96,7 +96,7 @@ end
         verbose_step::Integer = 0
     )
 
-It essentially loops through `[step_foward!](@ref)` as many as `num_steps` times, and
+It essentially loops through [`step_foward!`](@ref) as many as `num_steps` times, and
 returns a sparse array with the transition phases ocurring for each individual.
 """
 function evolve!(
