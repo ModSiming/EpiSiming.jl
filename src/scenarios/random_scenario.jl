@@ -289,7 +289,7 @@ function transition_rules(rng, phase::Phase, k)
             )
         )
     end
-    return next_change, next_phase
+    return next_phase, next_change
 end
 
 transition_rules(phase::Phase, k) = transition_rules(Random.default_rng(), phase::Phase, k)
