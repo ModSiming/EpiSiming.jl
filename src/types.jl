@@ -69,30 +69,35 @@ const phase_colors = Dict(
 #' ### Population
 
 """
-    struct Population{T, S} <: AbstractVector{Tuple{T, S}}
+    struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{{R, S, T, U, V, W, X}}}
 
 Population structure with the following fields:
-* phase::Vector{S}
-* event_history::Vector{T}
-* residence::Vector{Int}
-* position::Vector{Tuple{Float64, Float64}}
-* age::Vector{Int8}
-* susceptibility::Vector{Float64}
-* infectivity::Vector{Float64}
-* clusters::Vector{Dict{Symbol, Int}}
-* networks::Vector{Dict{Symbol, Int}}
+* phase::Vector{R}
+* event_history::Vector{S}
+* transition::Vector{Tuple{R, S}}
+* residence::Vector{T}
+* position::Vector{Tuple{U, U}}
+* age::Vector{V}
+* susceptibility::Vector{W}
+* infectivity::Vector{W}
+* clusters::Vector{Dict{X, T}}
+* networks::Vector{Dict{X, T}}
+
+Usually, `R=Phase`, `S=Int`, `T=U=Int`, `U=W=Float64`, `X=Symbol`.
+If is a huge population and memory is critical, one can set `S=Int16`, `U=Float16`,
+`V=Int8`, `W=Float16`, `X=Int8`.
 """
-struct Population{T, S} <: AbstractVector{Tuple{T, S}}
-    phase::Vector{T}
+struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{R, S, T, U, V, W, X}}
+    phase::Vector{R}
     event_history::Vector{S}
-    transition::Vector{Tuple{T, S}}
-    residence::Vector{Int}
-    position::Vector{Tuple{Float64, Float64}}
-    age::Vector{Int8}
-    susceptibility::Vector{Float64}
-    infectivity::Vector{Float64}
-    clusters::Vector{Dict{Symbol, Int}}
-    networks::Vector{Dict{Symbol, Int}}
+    transition::Vector{Tuple{R, S}}
+    residence::Vector{T}
+    position::Vector{Tuple{U, U}}
+    age::Vector{V}
+    susceptibility::Vector{W}
+    infectivity::Vector{W}
+    clusters::Vector{Dict{X, T}}
+    networks::Vector{Dict{X, T}}
 end
 
 Base.size(population::Population) = size(population.phase)
@@ -110,14 +115,21 @@ Base.getindex(population::Population, n::Int) = (
 )
 
 function Base.setindex!(
-    population::Population{T, S}, 
+    population::Population{R, S, T, U, V, W, X}, 
     v::Tuple{
-        Vector{T}, Vector{S}, Vector{Int}, Vector{Tuple{T, S}},
-        Vector{Tuple{Float64, Float64}}, Vector{Int8}, Vector{Float64}, Vector{Float64},
-        Vector{Dict{Symbol, Int}}, Vector{Dict{Symbol, Int}}
+        Vector{R},
+        Vector{S},
+        Vector{Tuple{R, S}},
+        Vector{T},
+        Vector{Tuple{U, U}},
+        Vector{V},
+        Vector{W},
+        Vector{W},
+        Vector{Dict{X, T}},
+        Vector{Dict{X, T}}
     },
     n::Int
-) where {T, S}
+) where {R, S, T, U, V, W, X}
     population.phase[n] = v[1]
     population.event_history[n] = v[2]
     population.transition[n] = v[3]
@@ -144,6 +156,8 @@ Residences structure with the following fields:
 * position::Vector{Tuple{S, S}}
 * num_residents::Vector{T}
 * residents::Vector{Vector{T}}
+
+Usually, `T` is an `Int` and `S` is a floating point type.
 """
 struct Residences{T, S} <: AbstractVector{Tuple{T, S}}
     block::Vector{T}
@@ -175,19 +189,19 @@ end
 #' ### Clusters
 
 """
-    struct Clusters
+    struct Clusters{R, S, T, U}
 
 Clusters structure with the following fields:
-* id::Symbol
-* name::String
-* contact_rate::Float64
-* clusters::Vector{Vector{Int}}
+* id::R
+* name::S
+* contact_rate::T
+* clusters::Vector{Vector{U}}
 """
-struct Clusters
-    id::Symbol
-    name::String
-    contact_rate::Float64
-    clusters::Vector{Vector{Int}}
+struct Clusters{R, S, T, U}
+    id::R
+    name::S
+    contact_rate::T
+    clusters::Vector{Vector{U}}
 end
 
 #' ### networks
