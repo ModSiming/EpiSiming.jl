@@ -72,7 +72,7 @@
     for n in exposed_at_time_0
         population.phase[n] = EXPOSED
         next_change, next_phase = EpiSiming.transition_rules(rng, EXPOSED, 1)
-        population.transition[n] = (next_phase, next_change)
+        population.next_transition[n] = (next_phase, next_change)
     end
 
     max_size = 100

@@ -60,13 +60,13 @@ function step_foward!(rng, population, chances, λ, γ, prob, k)
                 population.past_transition[n] = k
                 population.phase[n] = EXPOSED
                 next_change, next_phase = transition_rules(rng, EXPOSED, k)
-                population.transition[n] = (next_phase, next_change)
+                population.next_transition[n] = (next_phase, next_change)
             end
-        elseif k ≥ population.transition[n][2]
+        elseif k ≥ population.next_transition[n][2]
             population.past_transition[n] = k
-            population.phase[n] = population.transition[n][1]
+            population.phase[n] = population.next_transition[n][1]
             next_change, next_phase = transition_rules(rng, phase, k)
-            population.transition[n] = (next_phase, next_change)
+            population.next_transition[n] = (next_phase, next_change)
         end
     end
     nothing

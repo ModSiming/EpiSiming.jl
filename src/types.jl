@@ -72,7 +72,7 @@ const phase_colors = Dict(
 Population structure with the following fields:
 * phase::Vector{R}
 * past_transition::Vector{S}
-* transition::Vector{Tuple{R, S}}
+* next_transition::Vector{Tuple{R, S}}
 * residence::Vector{T}
 * position::Vector{Tuple{U, U}}
 * age::Vector{V}
@@ -88,7 +88,7 @@ If is a huge population and memory is critical, one can set `S=Int16`, `U=Float1
 struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{R, S, T, U, V, W, X}}
     phase::Vector{R}
     past_transition::Vector{S}
-    transition::Vector{Tuple{R, S}}
+    next_transition::Vector{Tuple{R, S}}
     residence::Vector{T}
     position::Vector{Tuple{U, U}}
     age::Vector{V}
@@ -102,7 +102,7 @@ Base.size(population::Population) = size(population.phase)
 Base.getindex(population::Population, n::Int) = (
     population.phase[n],
     population.past_transition[n],
-    population.transition[n],
+    population.next_transition[n],
     population.residence[n],
     population.position[n],
     population.age[n],
@@ -130,7 +130,7 @@ function Base.setindex!(
 ) where {R, S, T, U, V, W, X}
     population.phase[n] = v[1]
     population.past_transition[n] = v[2]
-    population.transition[n] = v[3]
+    population.next_transition[n] = v[3]
     population.residence[n] = v[4]
     population.position[n] = v[5]
     population.age[n] = v[6]
