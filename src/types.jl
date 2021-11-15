@@ -51,8 +51,6 @@ Base.show(io::IO, ::MIME"text/plain", x::Phase) =
         print(io, "Epidemic phase:\n   ", x) :
         print(io, "Undefined phase $x")
 
-
-
  #' Some colors for displaying the epidemics phase of the population
 
 const phase_colors = Dict(
@@ -73,7 +71,7 @@ const phase_colors = Dict(
 
 Population structure with the following fields:
 * phase::Vector{R}
-* event_history::Vector{S}
+* past_transition::Vector{S}
 * transition::Vector{Tuple{R, S}}
 * residence::Vector{T}
 * position::Vector{Tuple{U, U}}
@@ -89,7 +87,7 @@ If is a huge population and memory is critical, one can set `S=Int16`, `U=Float1
 """
 struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{R, S, T, U, V, W, X}}
     phase::Vector{R}
-    event_history::Vector{S}
+    past_transition::Vector{S}
     transition::Vector{Tuple{R, S}}
     residence::Vector{T}
     position::Vector{Tuple{U, U}}
@@ -103,7 +101,7 @@ end
 Base.size(population::Population) = size(population.phase)
 Base.getindex(population::Population, n::Int) = (
     population.phase[n],
-    population.event_history[n],
+    population.past_transition[n],
     population.transition[n],
     population.residence[n],
     population.position[n],
@@ -131,7 +129,7 @@ function Base.setindex!(
     n::Int
 ) where {R, S, T, U, V, W, X}
     population.phase[n] = v[1]
-    population.event_history[n] = v[2]
+    population.past_transition[n] = v[2]
     population.transition[n] = v[3]
     population.residence[n] = v[4]
     population.position[n] = v[5]
