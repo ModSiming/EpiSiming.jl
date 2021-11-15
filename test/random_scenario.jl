@@ -28,20 +28,6 @@
         :school_places => 0.2
     )
 
-    #' Recovery rates
-    γ = (
-        rate_expos = 0.25, # rate out of exposed
-        rate_infec = 0.1, # rate out of infected
-        rate_asymp = 0.2 # rate out of asymptomatic
-    )
-
-    #' Fate probabilities
-    prob = (
-        asymp = 0.6, # probability of becoming asymptomatic (vs. symptomatic = infected)
-        decease = 0.02 # probability of deceasing
-    )
-
-
     #' Set random number generator for repeatability in testings
     rng = MersenneTwister(123)
 
@@ -65,11 +51,15 @@
 
     #' ### Initial infection
 
-    num_exposed_at_time_0 = div(num_population, 500) # (= 0.2%) 20
+    num_exposed_at_time_0 = div(num_population, 500) # ( 1/500 = 0.002 = 0.2%) 20 for 10_000
 
     exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
-
-    population.phase[exposed_at_time_0] .= EXPOSED
+    
+    for n in exposed_at_time_0
+        population.phase[n] = EXPOSED
+        next_phase, next_change = EpiSiming.transition_rules(rng, EXPOSED, 1)
+        population.next_transition[n] = (next_phase, next_change)
+    end
 
     max_size = 100
     α = 1.8
@@ -114,8 +104,6 @@
         residences,
         clusters,
         τ,
-        γ,
-        prob,
         num_steps,
         time_step,
         verbose_step = 10

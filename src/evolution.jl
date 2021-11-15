@@ -11,7 +11,7 @@ group of direct contacts of the individual, be it their residence, their cluster
 (e.g. school, workplace), their network neighbors (e.g. friends, neighbors,
 local shops), and random contact (e.g. commuting, sporadical contacts).
 
-For each group say `i₁, …, iₙ`, the associated force of contact is computed as
+For each group say `i_1, ..., i_n`, the associated force of contact is computed as
 the sum of the infectivity rate for each of the infected individuals, multiplied by the
 transmission rate in that group and divided by the number `n-1` of co-members in the group.
 """
@@ -32,8 +32,8 @@ function force_of_infection!(λ, population, residences, clusters, τ)
             end
             for (cluster, index) in population.clusters[n]
                 cluster_members = clusters[cluster][index]
-                num_of_cluster_members = length(cluster_members) - 1
-                if num_of_cluster_members ≥ 1 # should not even include clusters with a single member
+                num_of_cluster_comembers = length(cluster_members) - 1
+                if num_of_cluster_comembers ≥ 1 # should not even include clusters with a single member
                     cocluster_infectivity = 0.0
                     for k in cluster_members
                         if population.phase[k] == INFECTED || 
@@ -41,7 +41,7 @@ function force_of_infection!(λ, population, residences, clusters, τ)
                             cocluster_infectivity += population.infectivity[k]
                         end
                     end
-                    λ[n] += τ[cluster] * cocluster_infectivity / num_of_cluster_members
+                    λ[n] += τ[cluster] * cocluster_infectivity / num_of_cluster_comembers
                 end
             end
         end
@@ -51,31 +51,36 @@ end
 
 #' ## Single step forward
 
-function step_foward!(rng, population, chances, λ, γ, prob, k)
+"""
+step_foward!(rng, population, chances, λ, k)
+
+A single step forward, based on the given force of infection `λ` (already computed with
+[`force_of_infection!`](@ref)).
+
+`chances` is preallocated and is mutated each step with new random numbers.
+
+The phase transitions from susceptible to exposed depends on the success of
+
+    `chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])`
+
+The transition from the other states are given by `[transition_rules](@ref)`.
+"""
+function step_foward!(rng, population, chances, λ, k)
     rand!(rng, chances)
     for n in eachindex(population)
         phase = population.phase[n]
-        if phase == SUSCEPTIBLE &&
-                chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
-            population.event_history[n] = k
-            population.phase[n] = EXPOSED
-        elseif phase == EXPOSED && chances[n] ≤ γ.rate_expos
-            population.event_history[n] = k
-            if rand(rng) ≤ prob.asymp
-                population.phase[n] = ASYMPTOMATIC
-            else
-                population.phase[n] = INFECTED
+        if phase == SUSCEPTIBLE
+            if @fastmath chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
+                population.past_transition[n] = k
+                population.phase[n] = EXPOSED
+                next_phase, next_change = transition_rules(rng, EXPOSED, k)
+                population.next_transition[n] = (next_phase, next_change)
             end
-        elseif phase == ASYMPTOMATIC && chances[n] ≤ γ.rate_asymp
-            population.event_history[n] = k
-            population.phase[n] = RECOVERED
-        elseif phase == INFECTED && chances[n] ≤ γ.rate_infec
-            population.event_history[n] = k
-            if rand(rng) ≤ prob.decease
-                population.phase[n] = DECEASED
-            else
-                population.phase[n] = RECOVERED
-            end
+        elseif k ≥ population.next_transition[n][2]
+            population.past_transition[n] = k
+            population.phase[n] = population.next_transition[n][1]
+            next_phase, next_change = transition_rules(rng, phase, k)
+            population.next_transition[n] = (next_phase, next_change)
         end
     end
     nothing
@@ -85,21 +90,33 @@ end
 
 #' Main evolution function
 
-function evolve!(rng, population, residences, clusters, τ, γ, prob, num_steps, time_step;
+"""
+    evolve!(
+        rng, population, residences, clusters, τ, num_steps, time_step;
+        verbose_step::Integer = 0
+    )
+
+It essentially loops through `[step_foward!](@ref)` as many as `num_steps` times, and
+returns a sparse array with the transition phases ocurring for each individual.
+"""
+function evolve!(
+    rng, population, residences, clusters, τ, num_steps, time_step;
     verbose_step::Integer = 0
 )
+
     num_population = length(population)
     evolution = spzeros(Phase, num_population, num_steps)
     evolution[:, 1]  .= population.phase # getfield(population, :phase)
     λ = Vector{Float64}(undef, num_population)
     chances = Vector{Float64}(undef, num_population)
+    
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
-        step_foward!(rng, population, chances, λ, γ, prob, k)
+        step_foward!(rng, population, chances, λ, k)
         for n in 1:num_population
             phase = population.phase[n]
             if phase != SUSCEPTIBLE 
-                evolution[n, k]  = phase
+                evolution[n, k] = phase
             end
         end
         if verbose_step > 0 && mod(k, verbose_step) == 0
@@ -111,6 +128,13 @@ end
 
 #' Summary with the total population in each compartiment
 
+"""
+    get_summary(evolution)
+
+With `m` phases (SUSCEPTIBLE, EXPOSED, etc.) and `num_steps` iterations,
+`get_summary(evolution)` returns a `num_steps x m` matrix of Integers with the population
+count at each iteration, on each phase.
+"""
 function get_summary(evolution)
     num_population, num_steps = size(evolution)
     summary = zeros(Int, num_steps, 7)

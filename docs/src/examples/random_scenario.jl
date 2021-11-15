@@ -1,13 +1,14 @@
 #+ echo = false
 #
 # Weave it to markdown, for showing on github and in Documenter, with
-# `using Weave`
-# `cd("examples")`
-# `weave("random_scenario.jl", fig_path = "random_scenario_img", doctype = "github")`
+# ```julia
+# ]activate .
+# using Weave
+# cd("docs/src/examples")
+# weave("random_scenario.jl", fig_path = "random_scenario_img", doctype = "github")
+# ```
 #
 # Weave it to html with 
-# `using Weave`
-# `cd("examples")`
 # `weave("random_scenario.jl", fig_path = "random_scenario_img")`
 
 #' # Epidemic simulation via a discrete-time, agent-based stochastic model with a random scenario
@@ -85,22 +86,6 @@ end
     :work_places => 0.1,
     :school_places => 0.2
 )
-
-#' #### Recovery rates
-
-γ = (
-    rate_expos = 0.25, # rate out of exposed
-    rate_infec = 0.1, # rate out of infected
-    rate_asymp = 0.2 # rate out of asymptomatic
-)
-
-#' #### Fate probabilities
-
-prob = (
-    asymp = 0.6, # probability of becoming asymptomatic (vs. symptomatic = infected)
-    decease = 0.02 # probability of deceasing
-)
-
 
 #' #### Random number generator
 #'
@@ -431,11 +416,16 @@ display(plt)
 
 #' ### Initial infection
 
-num_exposed_at_time_0 = div(num_population, 500) # (= 0.2%) 20
+num_exposed_at_time_0 = div(num_population, 500) # ( 1/500 = 0.002 = 0.2%) 20 for 10_000
 
 exposed_at_time_0 = sample(rng, 1:num_population, num_exposed_at_time_0, replace = false)
 
-population.phase[exposed_at_time_0] .= EXPOSED
+# population.phase[exposed_at_time_0] .= EXPOSED
+for n in exposed_at_time_0
+    population.phase[n] = EXPOSED
+    next_phase, next_change = EpiSiming.transition_rules(rng, EXPOSED, 1)
+    population.next_transition[n] = (next_phase, next_change)
+end
 
 #' ### Evolution parameters
 
@@ -450,8 +440,6 @@ time_step = 1
     residences,
     clusters,
     τ,
-    γ,
-    prob,
     num_steps,
     time_step,
     verbose_step = 10
