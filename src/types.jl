@@ -18,8 +18,8 @@ primitive type Phase 8 end
 Phase(x::Int) = reinterpret(Phase, UInt8(x))
 Base.Int(x::Phase) = convert(Int, reinterpret(UInt8, x)) # needed for Base.show(io::IO, x::Phase)
 Base.Broadcast.broadcastable(x::Phase) = Ref(x)
-Base.zero(::Phase) = Phase(0)
-Base.zero(::Type{Phase}) = Phase(0)
+Base.zero(::Phase) = Phase(1)
+Base.zero(::Type{Phase}) = Phase(1)
 
 phaselist = (
     :SUSCEPTIBLE,
@@ -31,15 +31,15 @@ phaselist = (
 )
 
 for (i, n) in enumerate(phaselist)
-    @eval const $n = Phase($i - 1)
+    @eval const $n = Phase($i)
 end
 
 function Base.show(io::IO, x::Phase)
     if x in eval.(phaselist)
         if get(io, :compact, true)
-            print(io, first(string(phaselist[Int(x) + 1])))
+            print(io, first(string(phaselist[Int(x)])))
         else
-            print(io, string(phaselist[Int(x) + 1]))
+            print(io, string(phaselist[Int(x)]))
         end
     else
         print(io, "Undefined phase $x")

@@ -140,7 +140,7 @@ function get_summary(evolution)
     summary = zeros(Int, num_steps, 7)
     for k in 1:num_steps
         for n in 1:num_population
-            summary[k, Int(evolution[n, k]) + 1] += 1
+            summary[k, Int(evolution[n, k])] += 1
         end
     end
     return summary
