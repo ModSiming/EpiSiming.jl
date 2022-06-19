@@ -52,7 +52,7 @@ end
 #' ## Single step forward
 
 """
-step_foward!(rng, population, chances, λ, k)
+step_forward!(rng, population, chances, λ, k)
 
 A single step forward, based on the given force of infection `λ` (already computed with
 [`force_of_infection!`](@ref)).
@@ -65,7 +65,7 @@ The phase transitions from susceptible to exposed depends on the success of
 
 The transition from the other states are given by [`transition_rules`](@ref).
 """
-function step_foward!(rng, population, chances, λ, k)
+function step_forward!(rng, population, chances, λ, k)
     rand!(rng, chances)
     for n in eachindex(population)
         phase = population.phase[n]
@@ -96,7 +96,7 @@ end
         verbose_step::Integer = 0
     )
 
-It essentially loops through [`step_foward!`](@ref) as many as `num_steps` times, and
+It essentially loops through [`step_forward!`](@ref) as many as `num_steps` times, and
 returns an array with the transition phases ocurring for each individual.
 """
 function evolve!(
@@ -112,7 +112,7 @@ function evolve!(
     
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
-        step_foward!(rng, population, chances, λ, k)
+        step_forward!(rng, population, chances, λ, k)
         evolution[:, k] .= population.phase
         if verbose_step > 0 && mod(k, verbose_step) == 0
             @info "Done time step $k (day $(k * time_step))"
@@ -147,7 +147,7 @@ end
         verbose_step::Integer = 0
     )
 
-It essentially loops through [`step_foward!`](@ref) as many as `num_steps` times, and
+It essentially loops through [`step_forward!`](@ref) as many as `num_steps` times, and
 returns a sparse array with the transition phases ocurring for each individual.
 """
 function evolve_for_transitions!(
@@ -164,7 +164,7 @@ function evolve_for_transitions!(
     
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
-        step_foward!(rng, population, chances, λ, k)
+        step_forward!(rng, population, chances, λ, k)
         for n in 1:num_population
             phase = population.phase[n]
             if phase != current[n]
