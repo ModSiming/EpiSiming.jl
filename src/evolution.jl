@@ -88,7 +88,7 @@ end
 
 #' ## Time evolution
 
-#' Main evolution function
+#' Main evolution functions
 
 """
     evolve!(
@@ -97,7 +97,7 @@ end
     )
 
 It essentially loops through [`step_foward!`](@ref) as many as `num_steps` times, and
-returns a sparse array with the transition phases ocurring for each individual.
+returns an array with the transition phases ocurring for each individual.
 """
 function evolve!(
     rng, population, residences, clusters, τ, num_steps, time_step;
@@ -105,20 +105,15 @@ function evolve!(
 )
 
     num_population = length(population)
-    evolution = spzeros(Phase, num_population, num_steps)
-    evolution[:, 1]  .= population.phase # getfield(population, :phase)
+    evolution = Matrix{Phase}(undef, num_population, num_steps)
+    evolution[:, 1] .= population.phase
     λ = Vector{Float64}(undef, num_population)
     chances = Vector{Float64}(undef, num_population)
     
     for k in 2:num_steps
         force_of_infection!(λ, population, residences, clusters, τ)
         step_foward!(rng, population, chances, λ, k)
-        for n in 1:num_population
-            phase = population.phase[n]
-            if phase != SUSCEPTIBLE 
-                evolution[n, k] = phase
-            end
-        end
+        evolution[:, k] .= population.phase
         if verbose_step > 0 && mod(k, verbose_step) == 0
             @info "Done time step $k (day $(k * time_step))"
         end
@@ -126,7 +121,7 @@ function evolve!(
     return evolution
 end
 
-#' Summary with the total population in each compartiment
+#' Summary with the total population in each compartment
 
 """
     get_summary(evolution)
@@ -141,6 +136,72 @@ function get_summary(evolution)
     for k in 1:num_steps
         for n in 1:num_population
             summary[k, Int(evolution[n, k])] += 1
+        end
+    end
+    return summary
+end
+
+"""
+    evolve_for_transitions!(
+        rng, population, residences, clusters, τ, num_steps, time_step;
+        verbose_step::Integer = 0
+    )
+
+It essentially loops through [`step_foward!`](@ref) as many as `num_steps` times, and
+returns a sparse array with the transition phases ocurring for each individual.
+"""
+function evolve_for_transitions!(
+    rng, population, residences, clusters, τ, num_steps, time_step;
+    verbose_step::Integer = 0
+)
+
+    num_population = length(population)
+    transitions = spzeros(Phase, num_population, num_steps)
+    transitions[:, 1]  .= population.phase
+    current = copy(population.phase)
+    λ = Vector{Float64}(undef, num_population)
+    chances = Vector{Float64}(undef, num_population)
+    
+    for k in 2:num_steps
+        force_of_infection!(λ, population, residences, clusters, τ)
+        step_foward!(rng, population, chances, λ, k)
+        for n in 1:num_population
+            phase = population.phase[n]
+            if phase != current[n]
+                transitions[n, k] = phase
+                current[n] = phase
+            end
+        end
+        if verbose_step > 0 && mod(k, verbose_step) == 0
+            @info "Done time step $k (day $(k * time_step))"
+        end
+    end
+    return transitions
+end
+
+#' Summary with the total population in each compartment from
+#' a sparse matrix of transitions (the transition matrix is yet 
+#' to be implemented, but should be the way to go).
+
+"""
+    get_summary_from_transitions(transitions)
+
+With `m` phases (SUSCEPTIBLE, EXPOSED, etc.) and `num_steps` iterations,
+`get_summary(transitions)` returns a `num_steps x m` matrix of Integers with the population
+count at each iteration, on each phase.
+"""
+function get_summary_from_transitions(transitions::SparseMatrixCSC)
+    num_population, num_steps = size(transitions)
+    summary = zeros(Int, num_steps, 7)
+    current_state = Vector(transitions[:, 1])
+    for kj in 1:num_steps
+        m = transitions.colptr[kj]
+        for ni in 1:num_population
+            if m < transitions.colptr[kj+1] && ni == transitions.rowval[m] && !iszero(transitions.nzval[m])
+                current_state[ni] = transitions.nzval[m]    
+                m += 1
+            end
+            summary[kj, Int(current_state[ni])] += 1
         end
     end
     return summary
