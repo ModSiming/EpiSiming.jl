@@ -15,14 +15,14 @@
 
 #' ## Introduction
 #'
-#' We construct, here, the scenario for an epidemics, in which the population is composed
+#' We construct, here, a random scenario for an epidemics, in which the population is composed
 #' of a number of agents (or individuals), aggregated into residences, and interacting with
 #' each other within the residences and through the following structures:
 #' 1. clusters of school and workplaces,
 #' 2. networks of social and commerce connections; and
 #' 3. causual encounters with the general population.
 #' 
-#' In the current example, we build a random scenario, in a rectangular region.
+
 
 #' ## Loading packages
 
