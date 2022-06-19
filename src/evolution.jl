@@ -193,7 +193,7 @@ count at each iteration, on each phase.
 function get_summary_from_transitions(transitions::SparseMatrixCSC)
     num_population, num_steps = size(transitions)
     summary = zeros(Int, num_steps, 7)
-    current_state = Vector(transitions[:, 1])
+    current_state = Vector(@view(transitions[:, 1]))
     for kj in 1:num_steps
         m = transitions.colptr[kj]
         for ni in 1:num_population
