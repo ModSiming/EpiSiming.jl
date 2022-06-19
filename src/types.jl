@@ -1,17 +1,17 @@
 # Types for Episiming.jl
-
+#= 
 """
     primitive type Phase 8 end
 
 `Phase` is a primitive type with 8 bits, representing the different phases, or stages,
 of a disease, for a given individual. The following phases are defined as (global)
 constants:
-* `SUSCEPTIBLE = Phase(0)`
-* `EXPOSED = Phase(1)`
-* `INFECTED = Phase(2)`
-* `ASYMPTOMATIC = Phase(3)`
-* `RECOVERED = Phase(4)`
-* `DECEASED = Phase(5)`
+* `SUSCEPTIBLE = Phase(1)`
+* `EXPOSED = Phase(2)`
+* `INFECTED = Phase(3)`
+* `ASYMPTOMATIC = Phase(4)`
+* `RECOVERED = Phase(5)`
+* `DECEASED = Phase(6)`
 """
 primitive type Phase 8 end
 
@@ -19,37 +19,69 @@ Phase(x::Int) = reinterpret(Phase, UInt8(x))
 Base.Int(x::Phase) = convert(Int, reinterpret(UInt8, x)) # needed for Base.show(io::IO, x::Phase)
 Base.Broadcast.broadcastable(x::Phase) = Ref(x)
 Base.zero(::Phase) = Phase(1)
-Base.zero(::Type{Phase}) = Phase(1)
+Base.zero(::Type{Phase}) = Phase(1) =#
+
+"""
+    struct Phase
+
+`Phase` is a composite type with a single 8 bits UInt8 value, representing the different phases, or stages,
+of a disease, for a given individual. 
+
+The following phases are defined as (global)
+constants:
+# `NULL = Phase(0)`
+* `SUSCEPTIBLE = Phase(1)`
+* `EXPOSED = Phase(2)`
+* `INFECTED = Phase(3)`
+* `ASYMPTOMATIC = Phase(4)`
+* `RECOVERED = Phase(5)`
+* `DECEASED = Phase(6)`
+* `UNKNOWN = Phase(7)`
+
+PS: I have tried with a primitive type Phase 8 end but the footprint and performance are the same, so a simple struct is easier and, in fact,
+recommended.
+"""
+struct Phase
+    val::UInt8
+end
+
+Phase(x::Int) = Phase(UInt8(x))
+Base.Int(x::Phase) = convert(Int, x.val)
+Base.Broadcast.broadcastable(x::Phase) = Ref(x)
+Base.zero(::Phase) = Phase(0)
+Base.zero(::Type{Phase}) = Phase(0)
 
 phaselist = (
+    :NULL,
     :SUSCEPTIBLE,
     :EXPOSED,
     :INFECTED,
     :ASYMPTOMATIC,
     :RECOVERED,
-    :DECEASED
+    :DECEASED,
+    :UNKNOWN
 )
 
 for (i, n) in enumerate(phaselist)
-    @eval const $n = Phase($i)
+    @eval const $n = Phase($i-1)
 end
 
 function Base.show(io::IO, x::Phase)
     if x in eval.(phaselist)
         if get(io, :compact, true)
-            print(io, first(string(phaselist[Int(x)])))
+            print(io, first(string(phaselist[Int(x)+1])))
         else
-            print(io, string(phaselist[Int(x)]))
+            print(io, string(phaselist[Int(x)+1]))
         end
     else
-        print(io, "Undefined phase $x")
+        print(io, "Undefined phase")
     end
 end
 
 Base.show(io::IO, ::MIME"text/plain", x::Phase) =
     x in eval.(phaselist) ?
         print(io, "Epidemic phase:\n   ", x) :
-        print(io, "Undefined phase $x")
+        print(io, "Undefined phase")
 
  #' Some colors for displaying the epidemics phase of the population
 
@@ -140,6 +172,8 @@ function Base.setindex!(
     population.networks[n] = v[10]
     return v
 end
+
+Base.copy(population::EpiSiming.Population) = EpiSiming.Population(population.phase, population.past_transition, population.next_transition, population.residence, population.position, population.age, population.susceptibility, population.infectivity, population.clusters, population.networks)
 
 #' ### Residences
 
