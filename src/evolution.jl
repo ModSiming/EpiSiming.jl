@@ -16,11 +16,12 @@ the sum of the infectivity rate for each of the infected individuals, multiplied
 transmission rate in that group and divided by the number `n-1` of co-members in the group.
 """
 function force_of_infection!(λ, population, residences, clusters, τ)
+
     for n in eachindex(population)
+        λ[n] = 0.0
         if population.phase[n] == SUSCEPTIBLE
             res = population.residence[n]
             number_of_coresidents = residences.num_residents[res] - 1
-            λ[n] = 0.0
             if number_of_coresidents ≥ 1
                 for k in residences.residents[res]
                     if population.phase[k] == INFECTED || 
@@ -30,17 +31,21 @@ function force_of_infection!(λ, population, residences, clusters, τ)
                 end
                 λ[n] *= τ[:residences] / number_of_coresidents
             end
-            for (cluster, index) in population.clusters[n]
-                cluster_members = clusters[cluster][index]
-                num_of_cluster_comembers = length(cluster_members) - 1
-                if num_of_cluster_comembers ≥ 1 # should not even include clusters with a single member
-                    cocluster_infectivity = 0.0
-                    for k in cluster_members
-                        if population.phase[k] == INFECTED || 
-                            population.phase[k] == ASYMPTOMATIC
-                            cocluster_infectivity += population.infectivity[k]
-                        end
+        end
+    end
+    for cluster in keys(clusters)
+        for ind in eachindex(clusters[cluster])
+            cluster_members = clusters[cluster][ind]
+            num_of_cluster_comembers = length(cluster_members) - 1
+            if num_of_cluster_comembers ≥ 1 # should not even include clusters with a single member
+                cocluster_infectivity = 0.0
+                for n in cluster_members
+                    if population.phase[n] == INFECTED || 
+                        population.phase[n] == ASYMPTOMATIC
+                        cocluster_infectivity += population.infectivity[n]
                     end
+                end
+                for n in cluster_members
                     λ[n] += τ[cluster] * cocluster_infectivity / num_of_cluster_comembers
                 end
             end
