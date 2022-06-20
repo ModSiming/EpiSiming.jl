@@ -131,6 +131,7 @@ struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{R, S, T, U, V, W,
 end
 
 Base.size(population::Population) = size(population.phase)
+Base.IndexStyle(::Type{<:Population}) = IndexLinear()
 Base.getindex(population::Population, n::Int) = (
     population.phase[n],
     population.past_transition[n],
@@ -173,6 +174,21 @@ function Base.setindex!(
     return v
 end
 
+Base.similar(population::Population{R, S, T, U, V, W, X}) where {R, S, T, U, V, W, X} = Population{R, S, T, U, V, W, X}(
+    Vector{R}(undef, length(population.phase)),
+    Vector{S}(undef, length(population.past_transition)),
+    Vector{Tuple{R, S}}(undef, length(population.next_transition)),
+    Vector{T}(undef, length(population.residence)),
+    Vector{Tuple{U, U}}(undef, length(population.position)),
+    Vector{V}(undef, length(population.age)),
+    Vector{W}(undef, length(population.susceptibility)),
+    Vector{W}(undef, length(population.infectivity)),
+    Vector{Dict{X, T}}(undef, length(population.clusters)),
+    Vector{Dict{X, T}}(undef, length(population.networks))
+)
+
+# It shouldn't be needed to extend copy; it should work automatically
+# from the above, but something is not okay
 Base.copy(population::EpiSiming.Population) = EpiSiming.Population(population.phase, population.past_transition, population.next_transition, population.residence, population.position, population.age, population.susceptibility, population.infectivity, population.clusters, population.networks)
 
 #' ### Residences
