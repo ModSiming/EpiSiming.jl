@@ -215,6 +215,7 @@ struct Residences{T, S} <: AbstractVector{Tuple{T, S}}
 end
 
 Base.size(residence::Residences) = size(residence.block)
+Base.IndexStyle(::Type{<:Residences}) = IndexLinear()
 Base.getindex(residence::Residences, n::Int) = (
     residence.block[n],
     residence.position[n],
@@ -233,6 +234,14 @@ function Base.setindex!(
     residence.residents[n] = v[4]
     return v
 end
+
+Base.similar(residences::Residences{T, S}) where {T, S} = Residences{T, S}(
+    Vector{T}(undef, length(residences.block)),
+    Vector{Tuple{T, S}}(undef, length(residences.positions)),
+    Vector{T}(undef, length(residences.num_residents)),
+    Vector{Vector{T}}(undef, length(residences.residents))
+)
+
 
 #' ### Clusters
 
