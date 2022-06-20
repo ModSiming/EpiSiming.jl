@@ -185,9 +185,7 @@ function gen_population(
         Vector{Tuple{Float64, Float64}}(undef, num_population), # positions
         ages, # ages
         pop_susceptibility, # susceptibility
-        pop_infectivity, # infectivity
-        Vector{Dict{Symbol, Int}}(undef, num_population), # clusters
-        Vector{Dict{Symbol, Int}}(undef, num_population) # networks
+        pop_infectivity # infectivity
     )
 
     @showprogress "Generating $num_population agents... " for m in eachindex(residences)
@@ -197,8 +195,6 @@ function gen_population(
             θ = 2π * (k - 1) / residences.num_residents[m]
             population.position[n] = res_position .+ radius .* (cos(θ), sin(θ))
             population.residence[n] = m
-            population.clusters[n] = Dict{Symbol, Int}()
-            population.networks[n] = Dict{Symbol, Int}()
         end
     end
     return population

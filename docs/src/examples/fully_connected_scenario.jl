@@ -111,14 +111,6 @@ population = EpiSiming.gen_population(
 
 clusters = Dict{Symbol, Vector{Vector{Int}}}(:complete => [collect(1:num_population)])
 
-for (k, v) in clusters
-    for (i, r) in enumerate(v)
-        for n in r
-            push!(population.clusters[n], k => i)
-        end
-    end
-end
-
 #' ## Evolution of the epidemics
 
 #' ### Evolution parameters

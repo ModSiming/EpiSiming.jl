@@ -117,7 +117,7 @@ Usually, `R=Phase`, `S=Int`, `T=U=Int`, `U=W=Float64`, `X=Symbol`.
 If is a huge population and memory is critical, one can set `S=Int16`, `U=Float16`,
 `V=Int8`, `W=Float16`, `X=Int8`.
 """
-struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{R, S, T, U, V, W, X}}
+struct Population{R, S, T, U, V, W} <: AbstractVector{Tuple{R, S, T, U, V, W}}
     phase::Vector{R}
     past_transition::Vector{S}
     next_transition::Vector{Tuple{R, S}}
@@ -126,8 +126,6 @@ struct Population{R, S, T, U, V, W, X} <: AbstractVector{Tuple{R, S, T, U, V, W,
     age::Vector{V}
     susceptibility::Vector{W}
     infectivity::Vector{W}
-    clusters::Vector{Dict{X, T}}
-    networks::Vector{Dict{X, T}}
 end
 
 Base.size(population::Population) = size(population.phase)
@@ -140,13 +138,11 @@ Base.getindex(population::Population, n::Int) = (
     population.position[n],
     population.age[n],
     population.susceptibility[n],
-    population.infectivity[n],
-    population.clusters[n],
-    population.networks[n]
+    population.infectivity[n]
 )
 
 function Base.setindex!(
-    population::Population{R, S, T, U, V, W, X}, 
+    population::Population{R, S, T, U, V, W}, 
     v::Tuple{
         Vector{R},
         Vector{S},
@@ -155,12 +151,10 @@ function Base.setindex!(
         Vector{Tuple{U, U}},
         Vector{V},
         Vector{W},
-        Vector{W},
-        Vector{Dict{X, T}},
-        Vector{Dict{X, T}}
+        Vector{W}
     },
     n::Int
-) where {R, S, T, U, V, W, X}
+) where {R, S, T, U, V, W}
     population.phase[n] = v[1]
     population.past_transition[n] = v[2]
     population.next_transition[n] = v[3]
@@ -169,12 +163,10 @@ function Base.setindex!(
     population.age[n] = v[6]
     population.susceptibility[n] = v[7]
     population.infectivity[n] = v[8]
-    population.clusters[n] = v[9]
-    population.networks[n] = v[10]
     return v
 end
 
-Base.similar(population::Population{R, S, T, U, V, W, X}) where {R, S, T, U, V, W, X} = Population{R, S, T, U, V, W, X}(
+Base.similar(population::Population{R, S, T, U, V, W}) where {R, S, T, U, V, W} = Population{R, S, T, U, V, W}(
     Vector{R}(undef, length(population.phase)),
     Vector{S}(undef, length(population.past_transition)),
     Vector{Tuple{R, S}}(undef, length(population.next_transition)),
@@ -182,14 +174,12 @@ Base.similar(population::Population{R, S, T, U, V, W, X}) where {R, S, T, U, V, 
     Vector{Tuple{U, U}}(undef, length(population.position)),
     Vector{V}(undef, length(population.age)),
     Vector{W}(undef, length(population.susceptibility)),
-    Vector{W}(undef, length(population.infectivity)),
-    Vector{Dict{X, T}}(undef, length(population.clusters)),
-    Vector{Dict{X, T}}(undef, length(population.networks))
+    Vector{W}(undef, length(population.infectivity))
 )
 
 # It shouldn't be needed to extend copy; it should work automatically
 # from the above, but something is not okay
-Base.copy(population::EpiSiming.Population) = EpiSiming.Population(population.phase, population.past_transition, population.next_transition, population.residence, population.position, population.age, population.susceptibility, population.infectivity, population.clusters, population.networks)
+Base.copy(population::EpiSiming.Population) = EpiSiming.Population(population.phase, population.past_transition, population.next_transition, population.residence, population.position, population.age, population.susceptibility, population.infectivity)
 
 #' ### Residences
 

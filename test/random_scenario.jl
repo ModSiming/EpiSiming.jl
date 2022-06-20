@@ -85,14 +85,6 @@
             α
         )
     )
-    
-    for (k, v) in clusters
-        for (i, r) in enumerate(v)
-            for n in r
-                push!(population.clusters[n], k => i)
-            end
-        end
-    end
 
     #' ### Example
 
