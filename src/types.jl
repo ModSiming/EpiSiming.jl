@@ -74,14 +74,18 @@ function Base.show(io::IO, x::Phase)
             print(io, string(PHASE_LIST[Int(x)+1]))
         end
     else
-        print(io, "Undefined phase")
+        if get(io, :compact, true)
+            print(io, "?")
+        else
+            print(io, "Unknown phase")
+        end
     end
 end
 
 Base.show(io::IO, ::MIME"text/plain", x::Phase) =
     x in eval.(PHASE_LIST) ?
         print(io, "Epidemic phase:\n   ", x) :
-        print(io, "Undefined phase")
+        print(io, "Unknown phase")
 
  #' Some colors for displaying the epidemics phase of the population
 
