@@ -179,8 +179,9 @@ function gen_population(
 
     population = Population(
         fill(SUSCEPTIBLE, num_population), # phase
-        fill(1, num_population), # past_transition
-        fill((EXPOSED, typemax(Int)), num_population), # next_transition
+        fill(1, num_population), # previous_transition
+        fill(typemax(Int), num_population), # next_transition
+        fill(EXPOSED, num_population), # next_phase
         Vector{Int}(undef, num_population), # residences
         Vector{Tuple{Float64, Float64}}(undef, num_population), # positions
         ages, # ages

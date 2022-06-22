@@ -76,16 +76,18 @@ function step_forward!(rng, population, chances, λ, k)
         phase = population.phase[n]
         if phase == SUSCEPTIBLE
             if @fastmath chances[n] ≤ 1 - exp(-λ[n] * population.susceptibility[n])
-                population.past_transition[n] = k
+                population.previous_transition[n] = k
                 population.phase[n] = EXPOSED
                 next_phase, next_change = transition_rules(rng, EXPOSED, k)
-                population.next_transition[n] = (next_phase, next_change)
+                population.next_transition[n] = next_change
+                population.next_phase[n] = next_phase
             end
-        elseif k ≥ population.next_transition[n][2]
-            population.past_transition[n] = k
-            population.phase[n] = population.next_transition[n][1]
+        elseif k ≥ population.next_transition[n]
+            population.previous_transition[n] = k
+            population.phase[n] = population.next_phase[n]
             next_phase, next_change = transition_rules(rng, phase, k)
-            population.next_transition[n] = (next_phase, next_change)
+            population.next_transition[n] = next_change
+            population.next_phase[n] = next_phase
         end
     end
     nothing

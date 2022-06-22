@@ -128,7 +128,8 @@ population.phase .= SUSCEPTIBLE
 for n in exposed_at_time_0
     population.phase[n] = EXPOSED
     next_phase, next_change = EpiSiming.transition_rules(rng, EXPOSED, 1)
-    population.next_transition[n] = (next_phase, next_change)
+    population.next_transition[n] = next_change
+    population.next_phase[n] = next_phase
 end
 
 #' ### Time evolution
@@ -180,7 +181,8 @@ population.phase .= SUSCEPTIBLE
 for n in exposed_at_time_0
     population.phase[n] = EXPOSED
     next_phase, next_change = EpiSiming.transition_rules(rng, EXPOSED, 1)
-    population.next_transition[n] = (next_phase, next_change)
+    population.next_transition[n] = next_change
+    population.next_phase[n] = next_phase
 end
 
 @time transitions = EpiSiming.evolve_for_transitions!(
