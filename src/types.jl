@@ -262,10 +262,24 @@ end
 """
 struct Networks
 
-Structure for the set of networks
+Structure for the set of networks.
+
+We expect `m` types of networks. The fields `ids`, `names`, and `contact_rates` are vectors of length `m`, with the info for each type of network.
+
+Then, neighbors is a vector of vectors, with the length equal to the size of the population and where each neighborhs[n] lists the other individuals of the population with are in direct contact with individual `n`.
+
+Similarly, `neighbor_networks` is a vector of vectors, with the length equal to the size of the population, and where `neighbor_networks[n][k]` indicates the networks where `n` and `neighbors[n][k]` are in direct contact. This should be a bitwise representation, like if they are in direct contact in networks with `ids` `[1, 3, 4]`, then `neighbor_networks[n][k] = 2^(1-1) + 2^(3-1) + 2^(4-1) = 1 + 4 + 8 = 13`.
+
+These should represent things like networks of friends.
 """
-struct Networks
+struct Networks{R, S, T}
+    ids::Vector{R}
+    names::Vector{S}
+    contact_rates::Vector{T}
+    neighbors::Vector{Vector{U}}
+    neighbor_networks::Vector{Vector{R}}
 end
+
 #' ### Scenario
 
 """
