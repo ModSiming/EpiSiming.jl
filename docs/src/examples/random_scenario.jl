@@ -444,7 +444,7 @@ time_step = 1
 display(
     plot(
         summary[:, 2:end],
-        labels = string.(reduce(hcat, EpiSiming.phaselist[2:end])),
+        labels = string.(reduce(hcat, EpiSiming.PHASE_LIST[2:end])),
         legend = :left,
         xlabel = "day",
         ylabel = "cases",
@@ -456,7 +456,7 @@ display(
 display(
     plot(
         summary[:, [2, 3, 4, 6]],
-        labels = string.(reduce(hcat, EpiSiming.phaselist[[2, 3, 4, 6]])),
+        labels = string.(reduce(hcat, EpiSiming.PHASE_LIST[[2, 3, 4, 6]])),
         legend = :right,
         xlabel = "day",
         ylabel = "cases",

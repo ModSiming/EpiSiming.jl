@@ -151,7 +151,7 @@ end
 display(
     plot(
         summary[:, 1:end],
-        labels = string.(reduce(hcat, EpiSiming.phaselist[2:end-1])),
+        labels = string.(reduce(hcat, EpiSiming.PHASE_LIST[2:end-1])),
         legend = :left,
         xlabel = "day",
         ylabel = "cases",
@@ -163,7 +163,7 @@ display(
 #= display(
     plot(
         summary[:, [3, 4, 5, 7]],
-        labels = string.(reduce(hcat, EpiSiming.phaselist[[3, 4, 5, 7]])),
+        labels = string.(reduce(hcat, EpiSiming.PHASE_LIST[[3, 4, 5, 7]])),
         legend = :right,
         xlabel = "day",
         ylabel = "cases",
@@ -201,7 +201,7 @@ end
 display(
     plot(
         summary_trsn[:, 1:end],
-        labels = string.(reduce(hcat, EpiSiming.phaselist[2:end-1])),
+        labels = string.(reduce(hcat, EpiSiming.PHASE_LIST[2:end-1])),
         legend = :left,
         xlabel = "day",
         ylabel = "cases",
@@ -213,7 +213,7 @@ display(
 display(
     plot(
         summary_trsn[:, [3, 4, 5, 7]],
-        labels = string.(reduce(hcat, EpiSiming.phaselist[[3, 4, 5, 7]])),
+        labels = string.(reduce(hcat, EpiSiming.PHASE_LIST[[3, 4, 5, 7]])),
         legend = :right,
         xlabel = "day",
         ylabel = "cases",

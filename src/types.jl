@@ -51,7 +51,7 @@ Base.Broadcast.broadcastable(x::Phase) = Ref(x)
 Base.zero(::Phase) = Phase(0)
 Base.zero(::Type{Phase}) = Phase(0)
 
-phaselist = (
+PHASE_LIST = (
     :NULL,
     :SUSCEPTIBLE,
     :EXPOSED,
@@ -62,16 +62,16 @@ phaselist = (
     :UNKNOWN
 )
 
-for (i, n) in enumerate(phaselist)
+for (i, n) in enumerate(PHASE_LIST)
     @eval const $n = Phase($i-1)
 end
 
 function Base.show(io::IO, x::Phase)
-    if x in eval.(phaselist)
+    if x in eval.(PHASE_LIST)
         if get(io, :compact, true)
-            print(io, first(string(phaselist[Int(x)+1])))
+            print(io, first(string(PHASE_LIST[Int(x)+1])))
         else
-            print(io, string(phaselist[Int(x)+1]))
+            print(io, string(PHASE_LIST[Int(x)+1]))
         end
     else
         print(io, "Undefined phase")
@@ -79,19 +79,21 @@ function Base.show(io::IO, x::Phase)
 end
 
 Base.show(io::IO, ::MIME"text/plain", x::Phase) =
-    x in eval.(phaselist) ?
+    x in eval.(PHASE_LIST) ?
         print(io, "Epidemic phase:\n   ", x) :
         print(io, "Undefined phase")
 
  #' Some colors for displaying the epidemics phase of the population
 
 const phase_colors = Dict(
+    NULL => :black,
     SUSCEPTIBLE => :lightgray,
     EXPOSED => :orange,
     INFECTED => :red,
     ASYMPTOMATIC => :violet,
     RECOVERED => :blue,
-    DECEASED => :black
+    DECEASED => :brown,
+    UNKNOWN => :white
 )
 
 #' ## Defining the main composite types
